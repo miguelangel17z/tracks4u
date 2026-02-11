@@ -14,9 +14,8 @@ class License(models.Model):
         choices=LICENSE_TYPES,
         default='basic'
     )
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    track = models.ForeignKey(Track, on_delete=models.PROTECT)
-
+    user = models.ForeignKey(User, on_delete=models.CASCADE,  null=True, blank=True)
+    track = models.ForeignKey(Track, on_delete=models.PROTECT, null=True, blank=True)
 
 
     
