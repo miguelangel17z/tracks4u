@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Subir Track</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: 50px auto; padding: 20px; }
+        input, button { display: block; margin: 10px 0; padding: 10px; width: 100%; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .mode { background: #28a745; color: white; padding: 10px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="mode">Modo: {{ NOTIFICATION_MODE|default:"MOCK" }}</div>
+    <h1>Subir Nuevo Track</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Subir Track</button>
+    </form>
+    <a href="{% url 'track-list' %}">Ver todos los tracks</a>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tracks</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .track { border: 1px solid #ddd; padding: 15px; margin: 10px 0; }
+        .price { color: green; font-weight: bold; }
+        a { color: #007bff; text-decoration: none; }
+        .mode { background: #28a745; color: white; padding: 10px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="mode">Modo: {{ NOTIFICATION_MODE|default:"MOCK" }}</div>
+    <h1>Todos los Tracks</h1>
+    <a href="{% url 'track-create' %}"> Subir nuevo track</a>
+    <hr>
+    {% for track in tracks %}
+    <div class="track">
+        <h3>{{ track.title }}</h3>
+        <p>BPM: {{ track.bpm }} | <span class="price">${{ track.price }}</span></p>
+        <p>Subido: {{ track.created_at|date:"d/m/Y H:i" }}</p>
+        {% if track.is_sold %}
+            <p style="color: red;">VENDIDO</p>
+        {% else %}
+            <p style="color: green;">DISPONIBLE</p>
+        {% endif %}
+    </div>
+    {% empty %}
+    <p>No hay tracks disponibles.</p>
+    {% endfor %}
+</body>
+</html>
