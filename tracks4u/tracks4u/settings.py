@@ -10,11 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Configuración de archivos media
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -38,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'tracks','payment','users'
+    'tracks','payment', 'users'
     
 ]
 
@@ -118,3 +124,26 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Configuración de Notificaciones
+NOTIFICATION_MODE = os.environ.get('NOTIFICATION_MODE', 'MOCK')  # MOCK o REAL
+
+if NOTIFICATION_MODE == 'REAL':
+    # Configuración para Mailtrap
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+    EMAIL_PORT = 2525
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('MAILTRAP_USER', 'tu_mailtrap_user')
+    EMAIL_HOST_PASSWORD = os.environ.get('MAILTRAP_PASSWORD', 'tu_mailtrap_password')
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+DEFAULT_FROM_EMAIL = 'doriangui63@gmail.com'
+ADMIN_EMAIL = 'dainishikado@gmail.com'  # Email del superuser para notificaciones
+
+
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
