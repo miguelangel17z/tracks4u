@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Licensing</title>
+</head>
+<body>
+
+<h1>Comprar licencia</h1>
+
+{% if error %}
+    <p style="color: red;">{{ error }}</p>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+
+    <label for="track_id">Track:</label><br>
+    <select name="track_id" id="track_id" required>
+        <option value="">-- Selecciona un track --</option>
+        {% for track in tracks %}
+            <option value="{{ track.id }}">
+                {{ track.title }}
+            </option>
+        {% endfor %}
+    </select>
+    <br><br>
+
+    <label for="license_type">Tipo de licencia:</label><br>
+    <select name="license_type" id="license_type">
+        <option value="basic">Basic</option>
+        <option value="premium">Premium</option>
+        <option value="exclusive">Exclusive</option>
+    </select>
+    <br><br>
+
+    <button type="submit">Crear licencia</button>
+</form>
+
+</body>
+</html>
