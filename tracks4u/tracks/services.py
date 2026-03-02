@@ -3,53 +3,50 @@ from django.conf import settings
 from datetime import datetime
 
 from .models import Track
-from .notifications.factory import NotificationFactory
+from .infra.notifications.factory import NotificationFactory
 
 
 class TrackService:
     """
     Servicio para gestionar operaciones relacionadas con tracks.
     """
-    
+
     @staticmethod
-    def crear_track(title: str, audio_file, price: float, bpm: int, 
-                   notificar_admin: bool = True) -> Track:
+    def crear_track(track: Track, notificar_admin: bool = True) -> Track:
         """
-        Crea un nuevo track y opcionalmente notifica al admin.
+        Ejecuta lógica posterior a la creación del track.
         """
-        track = Track.objects.create(
-            title=title,
-            audio_file=audio_file,
-            price=price,
-            bpm=bpm
-        )
-        
+
         if notificar_admin:
             TrackService._notificar_track_subido(track)
-        
+
         return track
-    
+
     @staticmethod
     def _notificar_track_subido(track: Track) -> bool:
-        """Notifica al admin cuando se sube un nuevo track."""
+        """
+        Notifica al admin cuando se sube un nuevo track.
+        """
         try:
             notificador = NotificationFactory.crear_notificador(
-                tipo='email',
-                template_type='track_uploaded'
+                tipo="email",
+                template_type="track_uploaded"
             )
-            
+
             contexto = {
-                'title': track.title,
-                'price': track.price,
-                'bpm': track.bpm,
-                'created_at': track.created_at.strftime('%Y-%m-%d %H:%M:%S')
+                "title": track.title,
+                "price": track.price,
+                "bpm": track.bpm,
+                "created_at": track.created_at.strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                ),
             }
-            
+
             return notificador.enviar(
                 destinatario=settings.ADMIN_EMAIL,
                 contexto=contexto
             )
-            
+
         except Exception as e:
             print(f"Error al enviar notificación: {e}")
             return False
