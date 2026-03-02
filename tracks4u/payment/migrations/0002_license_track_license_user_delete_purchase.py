@@ -23,7 +23,4 @@ class Migration(migrations.Migration):
             name='user',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='users.user'),
         ),
-        migrations.DeleteModel(
-            name='Purchase',
-        ),
     ]

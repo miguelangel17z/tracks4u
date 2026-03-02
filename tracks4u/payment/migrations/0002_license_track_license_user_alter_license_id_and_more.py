@@ -13,22 +13,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='license',
-            name='track',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='tracks.track'),
-        ),
-        migrations.AddField(
-            model_name='license',
-            name='user',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='users.user'),
-        ),
-        migrations.AlterField(
-            model_name='license',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
-        ),
-        migrations.DeleteModel(
-            name='Purchase',
-        ),
+        
+        
+        
     ]

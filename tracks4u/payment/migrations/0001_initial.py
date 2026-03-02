@@ -9,7 +9,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('tracks', '0001_initial'),
     ]
 
     operations = [
@@ -18,16 +17,5 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('license_type', models.CharField(choices=[('basic', 'Licencia Básica'), ('premium', 'Licencia Premium'), ('exclusive', 'Licencia Exclusiva')], default='basic', max_length=20)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='Purchase',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('price', models.DecimalField(decimal_places=2, max_digits=8)),
-                ('purchased_at', models.DateTimeField(auto_now_add=True)),
-                ('license', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='payment.license')),
-                ('track', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='tracks.track')),
-            ],
-        ),
+            ])
     ]

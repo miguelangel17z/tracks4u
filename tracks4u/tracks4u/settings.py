@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'tracks','payment', 'users'
     
 ]
+AUTH_USER_MODEL = 'users.User'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -57,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'tracks4u.urls'
 
