@@ -11,13 +11,20 @@
     </style>
 </head>
 <body>
-    <div class="mode">Modo: {{ NOTIFICATION_MODE|default:"MOCK" }}</div>
     <h1>Todos los Tracks</h1>
     <a href="{% url 'track-create' %}"> Subir nuevo track</a>
     <hr>
     {% for track in tracks %}
     <div class="track">
         <h3>{{ track.title }}</h3>
+
+        <audio controls style="width: 100%; margin: 10px 0;">
+            <source src="{{ track.audio_file.url }}" type="audio/mpeg">
+            <source src="{{ track.audio_file.url }}" type="audio/wav">
+            <source src="{{ track.audio_file.url }}" type="audio/ogg">
+            Tu navegador no soporta audio.
+        </audio>
+
         <p>BPM: {{ track.bpm }} | <span class="price">${{ track.price }}</span></p>
         <p>Subido: {{ track.created_at|date:"d/m/Y H:i" }}</p>
         {% if track.is_sold %}
