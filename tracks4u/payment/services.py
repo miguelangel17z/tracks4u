@@ -3,7 +3,7 @@ from typing import Optional, List
 from django.db import transaction
 from django.core.exceptions import ValidationError
 
-from .builders import LicenseBuilder
+from .domain.builders import LicenseBuilder
 from .models import License
 from tracks.models import Track
 from users.models import User

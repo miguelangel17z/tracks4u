@@ -15,9 +15,18 @@ class UserSerializer(serializers.ModelSerializer):
     # Configuraciones extras
         extra_kwargs ={
             "password":{'write_only':True, 'min_length':8},
-            "created_at":{'read_only'}
+            "created_at":{'read_only':True}
         }
 
+class UpdateProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password'] 
+        extra_kwargs = {
+            'username': {'required': False},
+            'email': {'required': False},
+            'password': {'required': False, 'write_only': True, 'min_length':8}
+        }   
 
         
        

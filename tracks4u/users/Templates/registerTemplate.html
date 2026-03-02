@@ -16,18 +16,39 @@
 
 
     <script>
+
+
         async function register() {
             const data = {
                 username: document.getElementById("username").value,
                 email: document.getElementById("email").value,
                 password: document.getElementById("password").value,
             }
+                    function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 
-            const response = await fetch("http://localhost:8000/api/users/register/", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(data)
-            })
+const csrftoken = getCookie('csrftoken');
+
+            const response = await fetch("{% url 'register' %}", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken   // ✅ necesario
+    },
+    body: JSON.stringify(data)
+});
 
             const result = await response.json()
 

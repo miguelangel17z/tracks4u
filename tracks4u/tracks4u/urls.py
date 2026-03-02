@@ -18,11 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from tracks.views import home
 from django.shortcuts import redirect
 
+
 urlpatterns = [
-    path('', lambda request: redirect('tracks/')),
+    path('', lambda request: redirect('api/users/')),
     path('admin/', admin.site.urls),
     path('tracks/', include('tracks.urls')),
     path('api/tracks/', include('tracks.api.urls')),

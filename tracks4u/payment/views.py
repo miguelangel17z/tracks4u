@@ -7,7 +7,6 @@ from .services import LicenseService
 from .models import User
 
 
-# @login_required
 def licensing_view(request):
     if request.method == "POST":
         track_id = request.POST.get("track_id")
