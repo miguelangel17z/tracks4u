@@ -27,6 +27,9 @@ Título: {title}
 Precio: ${price}
 BPM: {bpm}
 Fecha: {created_at}
+Género: {genre}
+Stock: {stock}
+    
 
 Saludos,
 Sistema Tracks4U

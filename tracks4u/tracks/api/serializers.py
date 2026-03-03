@@ -13,5 +13,8 @@ class TrackSerializer(serializers.ModelSerializer):
             "price",
             "bpm",
             "created_at",
+            "cover_image",
+            "genre",
+            "stock",
         ]
         read_only_fields = ["id", "created_at"]

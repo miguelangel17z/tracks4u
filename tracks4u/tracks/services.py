@@ -1,70 +1,58 @@
 from typing import Optional, List
 from django.conf import settings
-from datetime import datetime
-
 from .models import Track
 from .infra.notifications.factory import NotificationFactory
 
 
-class TrackService:
-    """
-    Servicio para gestionar operaciones relacionadas con tracks.
-    """
+class TrackCreatorService:
+    """Responsable de orquestar la creación de un track."""
 
     @staticmethod
     def crear_track(track: Track, notificar_admin: bool = True) -> Track:
-        """
-        Ejecuta lógica posterior a la creación del track.
-        """
-
         if notificar_admin:
-            TrackService._notificar_track_subido(track)
-
+            TrackNotificationService.notificar_track_subido(track)
         return track
 
+
+class TrackNotificationService:
+    """Responsable de enviar notificaciones relacionadas a tracks."""
+
     @staticmethod
-    def _notificar_track_subido(track: Track) -> bool:
-        """
-        Notifica al admin cuando se sube un nuevo track.
-        """
+    def notificar_track_subido(track: Track) -> bool:
         try:
             notificador = NotificationFactory.crear_notificador(
                 tipo="email",
                 template_type="track_uploaded"
             )
-
             contexto = {
                 "title": track.title,
                 "price": track.price,
                 "bpm": track.bpm,
-                "created_at": track.created_at.strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                ),
+                "created_at": track.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             }
-
             return notificador.enviar(
                 destinatario=settings.ADMIN_EMAIL,
                 contexto=contexto
             )
-
         except Exception as e:
             print(f"Error al enviar notificación: {e}")
             return False
-    
+
+
+class TrackQueryService:
+    """Responsable de consultar tracks."""
+
     @staticmethod
-    def obtener_track_por_id(track_id: int) -> Optional[Track]:
-        """Obtiene un track por su ID."""
+    def obtener_por_id(track_id: int) -> Optional[Track]:
         try:
             return Track.objects.get(id=track_id)
         except Track.DoesNotExist:
             return None
-    
+
     @staticmethod
-    def listar_tracks_disponibles() -> List[Track]:
-        """Lista todos los tracks no vendidos."""
+    def listar_disponibles() -> List[Track]:
         return list(Track.objects.filter(is_sold=False).order_by('-created_at'))
-    
+
     @staticmethod
-    def listar_todos_tracks() -> List[Track]:
-        """Lista todos los tracks."""
+    def listar_todos() -> List[Track]:
         return list(Track.objects.all().order_by('-created_at'))

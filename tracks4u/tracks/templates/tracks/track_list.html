@@ -1,40 +1,74 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Tracks</title>
     <style>
         body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; }
-        .track { border: 1px solid #ddd; padding: 15px; margin: 10px 0; }
-        .price { color: green; font-weight: bold; }
         a { color: #007bff; text-decoration: none; }
-        .mode { background: #28a745; color: white; padding: 10px; margin-bottom: 20px; }
+
+        .track {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            display: flex;
+            align-items: stretch;
+        }
+        .track-cover {
+            width: 160px;
+            min-width: 160px;
+            object-fit: cover;
+        }
+        .track-cover-placeholder {
+            width: 160px;
+            min-width: 160px;
+            background: #eee;
+        }
+        .track-info {
+            padding: 15px;
+            flex: 1;
+        }
+        .price { color: green; font-weight: bold; }
     </style>
 </head>
 <body>
     <h1>Todos los Tracks</h1>
-    <a href="{% url 'track-create' %}"> Subir nuevo track</a>
+    <a href="{% url 'track-create' %}">Subir nuevo track</a>
     <hr>
+
     {% for track in tracks %}
     <div class="track">
-        <h3>{{ track.title }}</h3>
 
-        <audio controls style="width: 100%; margin: 10px 0;">
-            <source src="{{ track.audio_file.url }}" type="audio/mpeg">
-            <source src="{{ track.audio_file.url }}" type="audio/wav">
-            <source src="{{ track.audio_file.url }}" type="audio/ogg">
-            Tu navegador no soporta audio.
-        </audio>
-
-        <p>BPM: {{ track.bpm }} | <span class="price">${{ track.price }}</span></p>
-        <p>Subido: {{ track.created_at|date:"d/m/Y H:i" }}</p>
-        {% if track.is_sold %}
-            <p style="color: red;">VENDIDO</p>
+        {% if track.cover_image %}
+            <img src="{{ track.cover_image.url }}" class="track-cover">
         {% else %}
-            <p style="color: green;">DISPONIBLE</p>
+            <img src="{% static 'img/base_cover.jpg' %}" class="track-cover">
         {% endif %}
+
+        <div class="track-info">
+            <h3>{{ track.title }}</h3>
+
+            <audio controls style="width: 100%; margin: 10px 0;">
+                <source src="{{ track.audio_file.url }}" type="audio/mpeg">
+                <source src="{{ track.audio_file.url }}" type="audio/wav">
+                <source src="{{ track.audio_file.url }}" type="audio/ogg">
+            </audio>
+
+            <p>BPM: {{ track.bpm }} | <span class="price">${{ track.price }}</span></p>
+            <p>Género: {{ track.genre }}</p>
+            <p>Stock: {{ track.stock }}</p>
+            <p>Subido: {{ track.created_at|date:"d/m/Y H:i" }}</p>
+
+            {% if track.is_sold %}
+                <p style="color: red;">Vendido</p>
+            {% else %}
+                <p style="color: green;">Disponible</p>
+            {% endif %}
+        </div>
+
     </div>
     {% empty %}
     <p>No hay tracks disponibles.</p>
     {% endfor %}
+
 </body>
 </html>

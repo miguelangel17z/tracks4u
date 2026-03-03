@@ -37,14 +37,11 @@ SECRET_KEY = 'django-insecure-3v=056ulzjhnly3-fn4_41s^gh^n#!qcu77%mvinm#t1j!#(-c
 DEBUG = True
 
 ALLOWED_HOSTS = []
-CORS_ALLOW_ALL_ORIGINS = True  # solo en desarrollo
-
 
 
 # Application definition
 
 INSTALLED_APPS = [
-     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -59,7 +56,6 @@ AUTH_USER_MODEL = 'users.User'
 
 
 MIDDLEWARE = [
-        "corsheaders.middleware.CorsMiddleware",  
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -136,6 +132,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static'] 
 
 # Configuración de Notificaciones
 NOTIFICATION_MODE = os.environ.get('NOTIFICATION_MODE', 'MOCK')  # MOCK o REAL

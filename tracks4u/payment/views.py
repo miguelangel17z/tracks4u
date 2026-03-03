@@ -7,7 +7,7 @@ from rest_framework import status
 
 from tracks.models import Track
 from .services import LicenseService
-from tracks.services import TrackService
+from tracks.services import TrackQueryService
 from .models import User
 from .api.serializers import LicenseSerializer
 
@@ -15,7 +15,7 @@ from .api.serializers import LicenseSerializer
 class LicensingView(APIView):
 
     def get(self,request):
-        return render(request,'licensing.html', {"tracks":TrackService.listar_todos_tracks})
+        return render(request,'licensing.html', {"tracks":TrackQueryService.listar_disponibles()})
 
 
     def post(self, request):
