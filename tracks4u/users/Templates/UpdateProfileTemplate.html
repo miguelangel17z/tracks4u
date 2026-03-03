@@ -9,11 +9,11 @@
     <h2>Actualizar Perfil</h2>
 
     <form id="updateForm">
-        <label>Username:</label><br>
-        <input type="text" id="username" value="{}"><br><br>
+        <label>Username actual: <strong>{{ username }}</strong></label><br>
+        <input type="text" id="username" value=""><br><br>
 
-        <label>Email:</label><br>
-        <input type="email" id="email" value="{}"><br><br>
+        <label>Email actual: <strong>{{ email }}</strong></label><br>
+        <input type="email" id="email" value=""><br><br>
 
         <label>Password:</label><br>
         <input type="password" id="password" placeholder="Nueva contraseña"><br><br>
@@ -24,51 +24,65 @@
     <p id="response"></p>
 
     <script>
-        const form = document.getElementById("updateForm");
+        // SRP — cada función tiene una sola responsabilidad
 
-        form.addEventListener("submit", async function(e) {
-            e.preventDefault();
+        // obtener el csrf token de la cookie
+        function getCsrfToken() {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith('csrftoken=')) {
+                        cookieValue = decodeURIComponent(cookie.substring('csrftoken='.length));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
 
+        // recoger solo los campos que el usuario modificó
+        function getFormData() {
             const data = {};
-
-            const username = document.getElementById("username").value;
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+            const username = document.getElementById('username').value;
+            const email    = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
 
             if (username) data.username = username;
-            if (email) data.email = email;
+            if (email)    data.email    = email;
             if (password) data.password = password;
 
-        function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-            cookie = cookie.trim();
-            if (cookie.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+            return data;
         }
-    }
-    return cookieValue;
-}
 
-const csrftoken = getCookie('csrftoken');
-
-            const response = await fetch("http://127.0.0.1:8000/api/users/profile/", {
-                method: "PATCH",
+        // enviar el PATCH al backend
+        async function updateProfile(data) {
+            return await fetch('http://127.0.0.1:8000/users/profile/', {
+                method: 'PATCH',
                 headers: {
-                    "Content-Type": "application/json",
-                'X-CSRFToken': csrftoken,  // csrftoken obtenido de la cookie
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken(),
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(data),
             });
+        }
 
-            const result = await response.json();
+        // mostrar el resultado en pantalla
+        function showResponse(status, result) {
+            document.getElementById('response').innerText =
+                'Status: ' + status + ' | ' + JSON.stringify(result);
+        }
 
-            document.getElementById("response").innerText =
-                "Status: " + response.status + " | " + JSON.stringify(result);
+        // OCP — el handler solo orquesta, no mezcla lógica
+        document.getElementById('updateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const data     = getFormData();
+            const response = await updateProfile(data);
+            const result   = await response.json();
+
+            showResponse(response.status, result);
         });
     </script>
 

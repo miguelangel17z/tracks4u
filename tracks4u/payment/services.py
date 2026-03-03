@@ -17,13 +17,14 @@ class LicenseService:
     @staticmethod
     #        Crea una nueva licencia usando el LicenseBuilder.
 
-    def crear_licencia(user: User, track: Track, license_type: str) -> License:
+    def crear_licencia(data:dict) -> License:
+        
         try:
             with transaction.atomic():
                 licencia = (LicenseBuilder()
-                    .para_user(user)
-                    .para_track(track)
-                    .para_license_type(license_type)
+                    .para_user(data['user'])
+                    .para_track(data['track'])
+                    .para_license_type(data['license_type'])
                     .construir())
                 
                 return licencia

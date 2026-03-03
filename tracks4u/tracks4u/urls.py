@@ -22,11 +22,13 @@ from django.shortcuts import redirect
 
 
 urlpatterns = [
-    path('', lambda request: redirect('api/users/')),
+    path('', lambda request: redirect('users/')),
     path('admin/', admin.site.urls),
     path('tracks/', include('tracks.urls')),
     path('api/tracks/', include('tracks.api.urls')),
-    path('api/users/', include('users.urls')),
+    path('users/', include('users.urls')),
+    path('payment/', include('payment.urls')),
+
 ]
 
 

@@ -38,6 +38,9 @@ class LicenseBuilder():
         if 'license_type' not in self.license_data:
             self.errores.append("Falta el tipo de licencia.")
 
+        if License.objects.filter(user=self.license_data['user'], track=self.license_data['track']).exists():
+             self.errores.append("Ya tienes una licencia para este track.")
+
     def construir(self):
         self.validar()
         if self.errores:

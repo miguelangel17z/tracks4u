@@ -1,44 +1,40 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 from tracks.models import Track
 from .services import LicenseService
+from tracks.services import TrackService
 from .models import User
+from .api.serializers import LicenseSerializer
 
 
-def licensing_view(request):
-    if request.method == "POST":
-        track_id = request.POST.get("track_id")
-        license_type = request.POST.get("license_type", "basic")
+class LicensingView(APIView):
 
-        track = Track.objects.get(id=track_id)
+    def get(self,request):
+        return render(request,'licensing.html', {"tracks":TrackService.listar_todos_tracks})
 
-    # USUARIO DE PRUEBA
-        userLocal = User.objects.first()
+
+    def post(self, request):
+        data = request.data.copy()
+        #data['user'] = request.user.id   # inyectamos user desde la sesión
+
+        # usuario de prubea
+        data['user'] = User.objects.first().id
+
+        serializer = LicenseSerializer(data=data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
         try:
-            LicenseService.crear_licencia(
-                user=userLocal, #ASUMIENDO QUE EL USUARIO ESTÁ AUTENTICADO
-                track=track,
-                license_type=license_type
-            )
-            return HttpResponse("Licencia creada")
+            LicenseService.crear_licencia(data=serializer.validated_data)
+            return Response("Licencia creada correctamente", status=status.HTTP_201_CREATED)
         except ValueError as e:
-            tracks = Track.objects.all()
-            return render(
-                request,
-                "licensing.html",
-                {
-                    "error": str(e),
-                    "tracks": tracks,
-                }
-            )
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  
 
-    # GET
-    tracks = Track.objects.all()
-    return render(
-        request,
-        "licensing.html",
-        {"tracks": tracks}
-    )
+            
+    
 

@@ -8,34 +8,65 @@
 
 <h1>Comprar licencia</h1>
 
-{% if error %}
-    <p style="color: red;">{{ error }}</p>
-{% endif %}
+<p id="mensaje" style="display:none;"></p>
 
-<form method="post">
-    {% csrf_token %}
+<label for="track_id">Track:</label><br>
+<select id="track_id">
+    <option value="">-- Selecciona un track --</option>
+    {% for track in tracks %}
+        <option value="{{ track.id }}">{{ track.title }}</option>
+    {% endfor %}
+</select>
+<br><br>
 
-    <label for="track_id">Track:</label><br>
-    <select name="track_id" id="track_id" required>
-        <option value="">-- Selecciona un track --</option>
-        {% for track in tracks %}
-            <option value="{{ track.id }}">
-                {{ track.title }}
-            </option>
-        {% endfor %}
-    </select>
-    <br><br>
+<label for="license_type">Tipo de licencia:</label><br>
+<select id="license_type">
+    <option value="basic">Basic</option>
+    <option value="premium">Premium</option>
+    <option value="exclusive">Exclusive</option>
+</select>
+<br><br>
 
-    <label for="license_type">Tipo de licencia:</label><br>
-    <select name="license_type" id="license_type">
-        <option value="basic">Basic</option>
-        <option value="premium">Premium</option>
-        <option value="exclusive">Exclusive</option>
-    </select>
-    <br><br>
+<button onclick="submitForm()">Crear licencia</button>
 
-    <button type="submit">Crear licencia</button>
-</form>
+<script>
+async function submitForm() {
+    const track = document.getElementById('track_id').value;
+    const license_type = document.getElementById('license_type').value;
+    const mensaje = document.getElementById('mensaje');
+
+    if (!track) {
+        mostrarMensaje('Selecciona un track.', 'red');
+        return;
+    }
+
+    const res = await fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: JSON.stringify({ track, license_type }),
+    });
+
+    const data = await res.json();
+
+    if (res.status === 201) {
+        mostrarMensaje('✓ Licencia creada correctamente', 'green');
+    } else {
+        const err = typeof data === 'string' ? data : JSON.stringify(data);
+        mostrarMensaje('Error: ' + err, 'red');
+    }
+}
+
+function mostrarMensaje(texto, color) {
+    const el = document.getElementById('mensaje');
+    el.textContent = texto;
+    el.style.color = color;
+    el.style.display = 'block';
+}
+</script>
 
 </body>
 </html>

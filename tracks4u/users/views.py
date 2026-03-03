@@ -17,6 +17,7 @@ class HomeView(APIView):
 
 class loginView(APIView):
     authentication_classes = []  # desactiva autenticación
+    permission_classes = []
 
     def get(self,request):
         return render(request,'loginTemplate.html')
@@ -64,11 +65,21 @@ class UpdateProfileView(APIView):
     
 
     def get(self, request):
-        return render(request, 'UpdateProfileTemplate.html')
+
+        # usuario de prubea
+        user = User.objects.first()
+
+        
+
+        return render(request, 'UpdateProfileTemplate.html', {
+    'username': user.username,
+    'email': user.email,
+})
         
       
     
     def patch(self,request):
+        user = request.user
         serializer = UpdateProfileSerializer(data=request.data)
 
         if not serializer.is_valid():
@@ -79,7 +90,7 @@ class UpdateProfileView(APIView):
        
         
         try:
-            UpdateProfileService.updateProfile(User.user,serializer.validated_data)
+            UpdateProfileService.updateProfile(user,serializer.validated_data)
             return Response(
                 {"mensaje": "Usuario actualizado correctamente"},
                 status=status.HTTP_200_OK
