@@ -1,0 +1,5 @@
+django>=4.2,<6.0
+djangorestframework
+djangorestframework-simplejwt
+pillow
+python-dotenv

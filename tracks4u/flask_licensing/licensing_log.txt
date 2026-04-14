@@ -1,0 +1,2 @@
+[2026-04-14 02:14:55.112764] Licencia 'basic' creada - Track:1 User:1 Precio:$9.99
+[2026-04-14 02:21:20.164752] Licencia 'basic' creada - Track:1 User:1 Precio:$9.99
