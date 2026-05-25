@@ -1,0 +1,344 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-25 19:16+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: templates/base.html:94 templates/base.html:120
+msgid "Tracks"
+msgstr ""
+
+#: templates/base.html:97 templates/base.html:123
+#: tracks/templates/tracks/track_form.html:93
+msgid "Upload Track"
+msgstr ""
+
+#: templates/base.html:100 templates/base.html:126
+msgid "Profile"
+msgstr ""
+
+#: templates/base.html:103 templates/base.html:129
+msgid "Logout"
+msgstr ""
+
+#: templates/base.html:143
+msgid "All rights reserved."
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:18
+msgid "Back to Tracks"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:35
+#: tracks/templates/tracks/track_list.html:43
+msgid "Default cover"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:52
+#: tracks/templates/tracks/track_list.html:66
+msgid "Your browser does not support the audio element."
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:58
+msgid "BPM"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:62
+msgid "Genre"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:66
+msgid "Sales"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:70
+msgid "Uploaded"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:80
+#: tracks/templates/tracks/Track_detail.html:137
+msgid "Purchase License"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:87
+msgid "Select a license type to view the price"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:94
+msgid "License Type"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:101
+msgid "Basic — $9.99 USD"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:102
+msgid "Premium — $29.99 USD"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:103
+msgid "Exclusive — $99.99 USD"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:110
+msgid "Currency"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:116
+msgid "Colombian Peso"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:117
+msgid "US Dollar"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:118
+msgid "Euro"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:119
+msgid "British Pound"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:120
+msgid "Japanese Yen"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:121
+msgid "Swiss Franc"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:122
+msgid "Canadian Dollar"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:123
+msgid "Australian Dollar"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:124
+msgid "Chinese Yuan"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:125
+msgid "Singapore Dollar"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:126
+msgid "Mexican Peso"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:127
+msgid "Brazilian Real"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:179
+#: tracks/templates/tracks/Track_detail.html:215
+msgid "License"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:179
+msgid "purchased successfully!"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:179
+msgid "Receipt"
+msgstr ""
+
+#: tracks/templates/tracks/Track_detail.html:186
+#: users/Templates/UpdateProfileTemplate.html:167
+#: users/Templates/loginTemplate.html:189
+#: users/Templates/registerTemplate.html:210
+msgid "Connection error. Please try again."
+msgstr ""
+
+#: tracks/templates/tracks/track_form.html:4
+msgid "Create Track"
+msgstr ""
+
+#: tracks/templates/tracks/track_form.html:9
+#: tracks/templates/tracks/track_list.html:23
+msgid "Upload New Track"
+msgstr ""
+
+#: tracks/templates/tracks/track_form.html:10
+msgid "Share your music with the world"
+msgstr ""
+
+#: tracks/templates/tracks/track_form.html:99
+msgid "Cancel"
+msgstr ""
+
+#: tracks/templates/tracks/track_list.html:5
+#: tracks/templates/tracks/track_list.html:12
+msgid "All Tracks"
+msgstr ""
+
+#: tracks/templates/tracks/track_list.html:13
+msgid "Explore our collection of premium beats and samples"
+msgstr ""
+
+#: tracks/templates/tracks/track_list.html:91
+#, python-format
+msgid "%(count)s sales"
+msgstr ""
+
+#: tracks/templates/tracks/track_list.html:110
+msgid "Sold"
+msgstr ""
+
+#: tracks/templates/tracks/track_list.html:115
+msgid "Available"
+msgstr ""
+
+#: tracks/templates/tracks/track_list.html:126
+msgid "Buy License"
+msgstr ""
+
+#: tracks/templates/tracks/track_list.html:142
+msgid "No tracks available yet."
+msgstr ""
+
+#: tracks/templates/tracks/track_list.html:147
+msgid "Upload the first track"
+msgstr ""
+
+#: users/Templates/UpdateProfileTemplate.html:4
+#: users/Templates/UpdateProfileTemplate.html:9
+#: users/Templates/UpdateProfileTemplate.html:64
+msgid "Update Profile"
+msgstr ""
+
+#: users/Templates/UpdateProfileTemplate.html:10
+msgid "Update your account information"
+msgstr ""
+
+#: users/Templates/UpdateProfileTemplate.html:16
+msgid "Current Username"
+msgstr ""
+
+#: users/Templates/UpdateProfileTemplate.html:22
+msgid "New username (leave empty to keep current)"
+msgstr ""
+
+#: users/Templates/UpdateProfileTemplate.html:30
+msgid "Current Email"
+msgstr ""
+
+#: users/Templates/UpdateProfileTemplate.html:36
+msgid "New email (leave empty to keep current)"
+msgstr ""
+
+#: users/Templates/UpdateProfileTemplate.html:44
+#: users/Templates/loginTemplate.html:107
+#: users/Templates/registerTemplate.html:121
+msgid "Password"
+msgstr ""
+
+#: users/Templates/UpdateProfileTemplate.html:49
+msgid "New password (leave empty to keep current)"
+msgstr ""
+
+#: users/Templates/UpdateProfileTemplate.html:148
+msgid "No changes detected. Please modify at least one field."
+msgstr ""
+
+#: users/Templates/UpdateProfileTemplate.html:157
+msgid "Profile updated successfully!"
+msgstr ""
+
+#: users/Templates/loginTemplate.html:7 users/Templates/loginTemplate.html:90
+msgid "Login"
+msgstr ""
+
+#: users/Templates/loginTemplate.html:85
+msgid "Sign in to continue"
+msgstr ""
+
+#: users/Templates/loginTemplate.html:95
+#: users/Templates/registerTemplate.html:95
+msgid "Username"
+msgstr ""
+
+#: users/Templates/loginTemplate.html:100
+msgid "Enter your username"
+msgstr ""
+
+#: users/Templates/loginTemplate.html:112
+msgid "Enter your password"
+msgstr ""
+
+#: users/Templates/loginTemplate.html:126
+msgid "Sign In"
+msgstr ""
+
+#: users/Templates/loginTemplate.html:132
+msgid "Don't have an account?"
+msgstr ""
+
+#: users/Templates/loginTemplate.html:134
+msgid "Sign up"
+msgstr ""
+
+#: users/Templates/loginTemplate.html:164
+#: users/Templates/registerTemplate.html:181
+msgid "Please fill in all fields"
+msgstr ""
+
+#: users/Templates/loginTemplate.html:185
+msgid "Invalid credentials"
+msgstr ""
+
+#: users/Templates/registerTemplate.html:7
+#: users/Templates/registerTemplate.html:90
+msgid "Register"
+msgstr ""
+
+#: users/Templates/registerTemplate.html:85
+msgid "Create your account"
+msgstr ""
+
+#: users/Templates/registerTemplate.html:100
+msgid "Choose a username"
+msgstr ""
+
+#: users/Templates/registerTemplate.html:108
+msgid "Email"
+msgstr ""
+
+#: users/Templates/registerTemplate.html:113
+msgid "Enter your email"
+msgstr ""
+
+#: users/Templates/registerTemplate.html:126
+msgid "Create a password"
+msgstr ""
+
+#: users/Templates/registerTemplate.html:142
+msgid "Create Account"
+msgstr ""
+
+#: users/Templates/registerTemplate.html:148
+msgid "Already have an account?"
+msgstr ""
+
+#: users/Templates/registerTemplate.html:150
+msgid "Sign in"
+msgstr ""
+
+#: users/Templates/registerTemplate.html:201
+msgid "Account created successfully! Redirecting to login..."
+msgstr ""
