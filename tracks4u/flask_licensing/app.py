@@ -10,7 +10,7 @@ LICENSE_PRICES_USD = {
     "exclusive": 99.99,
 }
 
-DJANGO_URL = "http://django_web:8000"
+DJANGO_URL = "http://django-web:8000"
 
 # ─── Adapter pattern ──────────────────────────────────────────────
 class CurrencyAdapter:
@@ -56,24 +56,31 @@ def crear_licencia():
     # 2. Crear licencia real en Django
     try:
         resp = requests.post(
-            f"{DJANGO_URL}/payment/licensing/",
-            json={"license_type": license_type, "track": track_id, "user": user_id},
-            headers={"Content-Type": "application/json"},
-            timeout=5
-        )
+        f"{DJANGO_URL}/payment/licensing/",
+        json={"license_type": license_type, "track": track_id, "user": user_id},
+        headers={
+            "Content-Type": "application/json",
+        },
+        timeout=5
+)    
+        django_status = resp.status_code
+
         django_ok = resp.status_code == 201
-        django_msg = resp.json() if django_ok else resp.text
+
+        try:
+            django_msg = resp.json()
+        except:
+            django_msg = resp.text 
     except Exception as e:
         django_ok = False
         django_msg = str(e)
-
+        django_status = 502
     # 3. Log de auditoría
     with open("licensing_log.txt", "a") as f:
         f.write(f"[{datetime.datetime.now()}] {license_type} | Track:{track_id} User:{user_id} | {precio_convertido['amount']} {precio_convertido['currency']} | django_ok:{django_ok}\n")
 
     if not django_ok:
-        return jsonify({"error": "No se pudo registrar la licencia", "detalle": django_msg}), 502
-
+        return jsonify(django_msg), django_status
     return jsonify({
         "status": "approved",
         "license_type": license_type,

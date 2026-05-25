@@ -1,2 +1,28 @@
 [2026-04-14 02:14:55.112764] Licencia 'basic' creada - Track:1 User:1 Precio:$9.99
 [2026-04-14 02:21:20.164752] Licencia 'basic' creada - Track:1 User:1 Precio:$9.99
+[2026-05-25 07:59:53.573946] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 07:59:58.996497] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:00:03.029331] premium | Track:2 User:1 | 29.99 USD | django_ok:False
+[2026-05-25 08:04:52.376260] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:08:51.345553] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:10:25.905648] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:10:53.655389] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:14:08.069841] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:20:31.886009] basic | Track:2 User:1 | 9.99 USD | django_ok:True
+[2026-05-25 08:20:53.199637] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:20:58.205637] premium | Track:2 User:1 | 29.99 USD | django_ok:False
+[2026-05-25 08:21:00.776849] premium | Track:2 User:1 | 29.99 USD | django_ok:False
+[2026-05-25 08:21:08.499713] basic | Track:1 User:1 | 9.99 USD | django_ok:True
+[2026-05-25 08:21:11.512478] basic | Track:1 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:28:53.706263] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:31:14.751879] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:33:51.139263] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:35:58.649269] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:38:37.544861] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:40:26.051253] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:40:30.351176] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:43:04.820706] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:47:12.315420] basic | Track:2 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:47:25.784576] basic | Track:1 User:1 | 9.99 USD | django_ok:False
+[2026-05-25 08:48:10.290558] basic | Track:3 User:1 | 9.99 USD | django_ok:True
+[2026-05-25 08:48:17.027419] basic | Track:3 User:1 | 9.99 USD | django_ok:False

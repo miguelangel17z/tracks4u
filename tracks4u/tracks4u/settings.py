@@ -36,7 +36,6 @@ SECRET_KEY = 'django-insecure-3v=056ulzjhnly3-fn4_41s^gh^n#!qcu77%mvinm#t1j!#(-c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -64,7 +63,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+ALLOWED_HOSTS = ['*']
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [],
+}
 
 ROOT_URLCONF = 'tracks4u.urls'
 LOGIN_URL = '/users/login/'
