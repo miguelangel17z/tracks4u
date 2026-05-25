@@ -41,6 +41,13 @@
             }
             return cookieValue;
         }
+        // Al cargar la página de profile, verifica que el token existe
+        window.addEventListener('load', function() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/users/login/';
+            }
+        });
 
         // recoger solo los campos que el usuario modificó
         function getFormData() {
@@ -58,7 +65,7 @@
 
         // enviar el PATCH al backend
         async function updateProfile(data) {
-            return await fetch('http://127.0.0.1:8000/users/profile/', {
+            return await fetch("{% url 'api-profile' %}", {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

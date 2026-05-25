@@ -67,7 +67,7 @@ MIDDLEWARE = [
 
 
 ROOT_URLCONF = 'tracks4u.urls'
-
+LOGIN_URL = '/users/login/'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

@@ -1,5 +1,5 @@
 from django.http import HttpResponse, HttpResponseRedirect
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, DetailView, ListView
 from django.urls import reverse_lazy
 
 from .models import Track
@@ -27,3 +27,8 @@ class TrackListView(ListView):
     template_name = "tracks/track_list.html"
     context_object_name = "tracks"
     ordering = ["-created_at"]
+
+class TrackDetailView(DetailView):
+    model = Track
+    template_name = "tracks/track_detail.html"
+    context_object_name = "track"

@@ -62,6 +62,9 @@
                 <p style="color: red;">Vendido</p>
             {% else %}
                 <p style="color: green;">Disponible</p>
+                <a href="{% url 'track-detail' track.pk %}">
+                     <button>Comprar licencia</button>
+                </a>
             {% endif %}
         </div>
 

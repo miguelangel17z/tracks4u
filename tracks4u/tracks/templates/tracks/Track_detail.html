@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ track.title }}</title>
+</head>
+<body>
+
+<a href="{% url 'track-list' %}">← Volver</a>
+
+<div style="display:flex; gap:20px; margin-top:20px;">
+
+    {% if track.cover_image %}
+        <img src="{{ track.cover_image.url }}" style="width:200px; object-fit:cover;">
+    {% else %}
+        <img src="{% static 'img/base_cover.jpg' %}" style="width:200px;">
+    {% endif %}
+
+    <div>
+        <h1>{{ track.title }}</h1>
+        <p>BPM: {{ track.bpm }}</p>
+        <p>Género: {{ track.genre }}</p>
+        <p>Stock: {{ track.stock }}</p>
+        <audio controls style="width:100%; margin:10px 0;">
+            <source src="{{ track.audio_file.url }}" type="audio/mpeg">
+        </audio>
+    </div>
+</div>
+
+<hr>
+<h2>Comprar licencia</h2>
+
+<p id="mensaje" style="display:none;"></p>
+
+<p id="precio-display">Selecciona un tipo de licencia para ver el precio</p>
+
+<label>Tipo de licencia:</label><br>
+<select id="license_type" onchange="mostrarPrecio(this.value)">
+    <option value="basic">Basic — $9.99 USD</option>
+    <option value="premium">Premium — $29.99 USD</option>
+    <option value="exclusive">Exclusive — $99.99 USD</option>
+</select>
+<br><br>
+
+<label>Moneda:</label><br>
+<select id="currency">
+    <option value="COP">COP</option>
+    <option value="USD">USD</option>
+    <option value="EUR">EUR</option>
+</select>
+<br><br>
+
+<button onclick="comprar()">Comprar</button>
+
+<script>
+    const TRACK_ID = {{ track.pk }};
+    const USER_ID = 1; // temporal hasta conectar JWT
+
+    window.addEventListener('load', function() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/users/login/';
+        }
+    });
+
+    async function comprar() {
+        const license_type = document.getElementById('license_type').value;
+        const currency     = document.getElementById('currency').value;
+
+        const res = await fetch('/api/v2/licensing/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                track_id:     TRACK_ID,
+                user_id:      USER_ID,
+                license_type: license_type,
+                currency:     currency,
+            }),
+        });
+
+        const data = await res.json();
+
+        if (res.status === 201) {
+            const precio_key = `precio_${currency.toLowerCase()}`;
+            mostrarMensaje(
+                `✓ Licencia ${data.license_type} comprada | ${data[precio_key]} ${currency} | Recibo: ${data.recibo_id}`,
+                'green'
+            );
+        } else {
+            mostrarMensaje('Error: ' + (data.error || JSON.stringify(data)), 'red');
+        }
+    }
+
+    function mostrarMensaje(texto, color) {
+        const el = document.getElementById('mensaje');
+        el.textContent = texto;
+        el.style.color = color;
+        el.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
