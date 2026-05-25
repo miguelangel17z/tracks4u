@@ -1,6 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from payment.models import License
 from .serializers import LoginSerializer,UserSerializer,UpdateProfileSerializer
 from ..service import AuthService, RegisterService, UpdateProfileService
 from django.shortcuts import render
@@ -49,6 +52,34 @@ class RegisterView(APIView):
 
 
 class UpdateProfileView(APIView):
+    authentication_classes = [JWTAuthentication]  
+    permission_classes = [IsAuthenticated]    
+    
+    def get(self, request):
+        """Obtener información del perfil del usuario"""
+        user = request.user
+        
+        licenses = License.objects.filter(user=user).select_related('track')
+        
+        licenses_data = []
+        for license in licenses:
+            licenses_data.append({
+                'id': license.id,
+                'track_title': license.track.title,
+                'track_id': license.track.id,
+                'license_type': license.license_type,
+                'purchase_date': license.created_at,
+                'track_cover': license.track.cover_image.url if license.track.cover_image else None,
+                'track_bpm': license.track.bpm,
+                'track_genre': license.track.genre,
+            })
+        
+        return Response({
+            'username': user.username,
+            'email': user.email,
+            'licenses': licenses_data,
+            'total_licenses': len(licenses_data)
+        }, status=status.HTTP_200_OK)
     
     def patch(self,request):
         user = request.user

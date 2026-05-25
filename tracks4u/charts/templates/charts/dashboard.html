@@ -1,625 +1,680 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Charts — Beat Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <style>
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Analytics Dashboard" %} - Tracks4U{% endblock %}
+
+{% block extra_styles %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+    /* Chart.js defaults */
     :root {
-      --bg:       #0a0a0f;
-      --surface:  #111118;
-      --border:   #1e1e2e;
-      --accent:   #c8f135;
-      --accent2:  #7b5ea7;
-      --accent3:  #f1356e;
-      --text:     #e8e8f0;
-      --muted:    #5a5a72;
-      --basic:    #4cc9f0;
-      --premium:  #c8f135;
-      --exclusive:#f1356e;
+        --chart-accent: #DC2626;
+        --chart-accent2: #991b1b;
+        --chart-accent3: #f87171;
+        --chart-basic: #60a5fa;
+        --chart-premium: #fbbf24;
+        --chart-exclusive: #DC2626;
     }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
-      min-height: 100vh;
-      overflow-x: hidden;
+    
+    .chart-container {
+        position: relative;
+        height: 280px;
     }
-
-    /* ── Top bar ── */
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.5rem 2.5rem;
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      background: var(--bg);
-      z-index: 100;
+    
+    .chart-container.small {
+        height: 220px;
     }
-
-    .logo {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 1.25rem;
-      letter-spacing: -0.02em;
-      color: var(--accent);
+    
+    .chart-container.table {
+        height: auto;
     }
-
-    .logo span { color: var(--text); }
-
-    /* ── Period selector ── */
-    .period-tabs {
-      display: flex;
-      gap: 0.25rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.25rem;
+    
+    /* Period selector */
+    .period-selector {
+        display: inline-flex;
+        gap: 0.25rem;
+        background: rgba(39, 39, 42, 0.5);
+        border: 1px solid #3f3f46;
+        border-radius: 8px;
+        padding: 0.25rem;
     }
-
-    .period-tabs button {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      padding: 0.35rem 0.75rem;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.15s;
+    
+    .period-selector button {
+        background: none;
+        border: none;
+        color: #a1a1aa;
+        font-family: inherit;
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
     }
-
-    .period-tabs button.active,
-    .period-tabs button:hover {
-      background: var(--accent);
-      color: var(--bg);
-      font-weight: 500;
+    
+    .period-selector button:hover {
+        background: rgba(220, 38, 38, 0.1);
+        color: #DC2626;
     }
-
-    /* ── Main layout ── */
-    main {
-      padding: 2rem 2.5rem;
-      max-width: 1400px;
-      margin: 0 auto;
+    
+    .period-selector button.active {
+        background: #DC2626;
+        color: white;
     }
-
-    /* ── KPI Cards ── */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
+    
+    /* KPI Cards */
     .kpi-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem 1.5rem;
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.2s;
+        background: linear-gradient(135deg, rgba(220, 38, 38, 0.05), transparent);
+        border: 1px solid #27272a;
+        border-radius: 12px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s;
     }
-
-    .kpi-card:hover { border-color: var(--accent); }
-
+    
+    .kpi-card:hover {
+        border-color: #DC2626;
+        box-shadow: 0 4px 20px rgba(220, 38, 38, 0.15);
+    }
+    
     .kpi-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: var(--accent);
-      opacity: 0;
-      transition: opacity 0.2s;
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #DC2626, #991b1b);
+        opacity: 0;
+        transition: opacity 0.3s;
     }
-
-    .kpi-card:hover::before { opacity: 1; }
-
+    
+    .kpi-card:hover::before {
+        opacity: 1;
+    }
+    
     .kpi-label {
-      font-size: 0.65rem;
-      color: var(--muted);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 0.5rem;
+        font-size: 0.75rem;
+        color: #a1a1aa;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        font-weight: 500;
+        margin-bottom: 0.75rem;
     }
-
+    
     .kpi-value {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 2rem;
-      color: var(--accent);
-      line-height: 1;
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #DC2626;
+        line-height: 1;
+        margin-bottom: 0.5rem;
     }
-
+    
     .kpi-sub {
-      font-size: 0.7rem;
-      color: var(--muted);
-      margin-top: 0.4rem;
+        font-size: 0.75rem;
+        color: #71717a;
     }
-
-    /* ── Charts grid ── */
-    .charts-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .charts-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
+    
+    /* Chart cards */
     .chart-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.5rem;
+        background: rgba(24, 24, 27, 0.5);
+        backdrop-filter: blur(10px);
+        border: 1px solid #27272a;
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s;
     }
-
-    .chart-card.full { grid-column: 1 / -1; }
-
+    
+    .chart-card:hover {
+        border-color: #3f3f46;
+    }
+    
     .chart-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      margin-bottom: 1.25rem;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
     }
-
+    
     .chart-title {
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 0.9rem;
-      color: var(--text);
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: white;
     }
-
+    
     .chart-subtitle {
-      font-size: 0.65rem;
-      color: var(--muted);
-      margin-top: 0.2rem;
+        font-size: 0.875rem;
+        color: #71717a;
+        margin-top: 0.25rem;
     }
-
-    .chart-wrap {
-      position: relative;
-      height: 220px;
-    }
-
-    .chart-wrap.tall { height: 280px; }
-
-    /* ── Top tracks table ── */
+    
+    /* Top tracks table */
     .tracks-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.78rem;
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
     }
-
-    .tracks-table th {
-      text-align: left;
-      color: var(--muted);
-      font-weight: 400;
-      font-size: 0.65rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 0.5rem 0.75rem;
-      border-bottom: 1px solid var(--border);
+    
+    .tracks-table thead th {
+        text-align: left;
+        color: #71717a;
+        font-weight: 600;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 0.75rem;
+        border-bottom: 1px solid #27272a;
     }
-
-    .tracks-table td {
-      padding: 0.65rem 0.75rem;
-      border-bottom: 1px solid var(--border);
-      color: var(--text);
+    
+    .tracks-table tbody td {
+        padding: 1rem 0.75rem;
+        border-bottom: 1px solid #27272a;
+        color: #e4e4e7;
     }
-
-    .tracks-table tr:last-child td { border-bottom: none; }
-
-    .tracks-table tr:hover td { background: rgba(200,241,53,0.04); }
-
-    .badge {
-      display: inline-block;
-      padding: 0.15rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.65rem;
-      font-weight: 500;
-      letter-spacing: 0.05em;
+    
+    .tracks-table tbody tr:last-child td {
+        border-bottom: none;
     }
-
-    .badge-sold     { background: rgba(241,53,110,0.15); color: var(--accent3); }
-    .badge-available { background: rgba(200,241,53,0.12); color: var(--accent); }
-
+    
+    .tracks-table tbody tr:hover {
+        background: rgba(220, 38, 38, 0.05);
+    }
+    
     .rank {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      color: var(--muted);
-      font-size: 0.8rem;
+        font-weight: 800;
+        color: #71717a;
+        font-size: 1rem;
     }
-
-    .rank-1 { color: var(--accent); }
-    .rank-2 { color: var(--text); }
-    .rank-3 { color: var(--accent2); }
-
-    /* ── Loading skeleton ── */
-    .skeleton {
-      background: linear-gradient(90deg, var(--border) 25%, var(--surface) 50%, var(--border) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.4s infinite;
-      border-radius: 4px;
+    
+    .rank-1 { color: #fbbf24; }
+    .rank-2 { color: #d4d4d8; }
+    .rank-3 { color: #f87171; }
+    
+    .track-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.025em;
     }
-
+    
+    .badge-sold {
+        background: rgba(220, 38, 38, 0.15);
+        color: #DC2626;
+        border: 1px solid rgba(220, 38, 38, 0.3);
+    }
+    
+    .badge-available {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    
+    /* Loading & Error states */
+    .loading-skeleton {
+        background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 8px;
+        height: 20px;
+    }
+    
     @keyframes shimmer {
-      0%   { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
     }
-
-    /* ── Fade-in ── */
-    .fade-in {
-      animation: fadeIn 0.4s ease forwards;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── Error state ── */
+    
     .error-msg {
-      font-size: 0.75rem;
-      color: var(--accent3);
-      text-align: center;
-      padding: 2rem;
+        text-align: center;
+        padding: 3rem;
+        color: #DC2626;
+        font-size: 0.875rem;
     }
-
-    @media (max-width: 900px) {
-      .kpi-grid        { grid-template-columns: repeat(2, 1fr); }
-      .charts-grid     { grid-template-columns: 1fr; }
-      .charts-row      { grid-template-columns: 1fr; }
-      header           { padding: 1rem 1.25rem; }
-      main             { padding: 1rem 1.25rem; }
+    
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
     }
-  </style>
-</head>
-<body>
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
 
-<header>
-  <div class="logo">beat<span>stats</span></div>
-  <div class="period-tabs">
-    <button data-period="7d">7D</button>
-    <button data-period="30d" class="active">30D</button>
-    <button data-period="90d">90D</button>
-    <button data-period="1y">1Y</button>
-  </div>
-</header>
-
-<main>
-
-  <!-- KPI Cards -->
-  <div class="kpi-grid" id="kpi-grid">
-    <div class="kpi-card"><div class="kpi-label">Ventas totales</div><div class="kpi-value" id="kpi-sales">—</div><div class="kpi-sub" id="kpi-period-label">cargando...</div></div>
-    <div class="kpi-card"><div class="kpi-label">Ingresos (USD)</div><div class="kpi-value" id="kpi-revenue">—</div><div class="kpi-sub">período seleccionado</div></div>
-    <div class="kpi-card"><div class="kpi-label">Tracks activos</div><div class="kpi-value" id="kpi-tracks">—</div><div class="kpi-sub">en catálogo</div></div>
-    <div class="kpi-card"><div class="kpi-label">Track #1</div><div class="kpi-value" style="font-size:1rem;padding-top:0.4rem" id="kpi-top-track">—</div><div class="kpi-sub">más vendido</div></div>
-  </div>
-
-  <!-- Sales line + Revenue donut -->
-  <div class="charts-grid">
-    <div class="chart-card">
-      <div class="chart-header">
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <div class="chart-title">Ventas por período</div>
-          <div class="chart-subtitle">Licencias vendidas por día</div>
+            <h1 class="text-4xl font-bold text-white mb-2">{% trans "Analytics Dashboard" %}</h1>
+            <p class="text-zinc-400">{% trans "Track performance metrics and sales insights" %}</p>
         </div>
-      </div>
-      <div class="chart-wrap tall"><canvas id="salesChart"></canvas></div>
+        
+        <!-- Period Selector -->
+        <div class="period-selector mt-4 md:mt-0">
+            <button data-period="7d">7D</button>
+            <button data-period="30d" class="active">30D</button>
+            <button data-period="90d">90D</button>
+            <button data-period="1y">1Y</button>
+        </div>
     </div>
 
-    <div class="chart-card">
-      <div class="chart-header">
-        <div>
-          <div class="chart-title">Ingresos por licencia</div>
-          <div class="chart-subtitle">Distribución en USD</div>
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">{% trans "Total Sales" %}</div>
+            <div class="kpi-value" id="kpi-sales">—</div>
+            <div class="kpi-sub" id="kpi-period-label">{% trans "loading..." %}</div>
         </div>
-      </div>
-      <div class="chart-wrap tall"><canvas id="revenueChart"></canvas></div>
-    </div>
-  </div>
-
-  <!-- Top tracks table + Genres bar -->
-  <div class="charts-row">
-    <div class="chart-card">
-      <div class="chart-header">
-        <div>
-          <div class="chart-title">Top tracks</div>
-          <div class="chart-subtitle">Ordenados por ventas</div>
+        
+        <div class="kpi-card">
+            <div class="kpi-label">{% trans "Revenue (USD)" %}</div>
+            <div class="kpi-value" id="kpi-revenue">—</div>
+            <div class="kpi-sub">{% trans "selected period" %}</div>
         </div>
-      </div>
-      <div id="tracks-table-wrap"></div>
-    </div>
-
-    <div class="chart-card">
-      <div class="chart-header">
-        <div>
-          <div class="chart-title">Géneros más vendidos</div>
-          <div class="chart-subtitle">Licencias por género</div>
+        
+        <div class="kpi-card">
+            <div class="kpi-label">{% trans "Active Tracks" %}</div>
+            <div class="kpi-value" id="kpi-tracks">—</div>
+            <div class="kpi-sub">{% trans "in catalog" %}</div>
         </div>
-      </div>
-      <div class="chart-wrap"><canvas id="genresChart"></canvas></div>
+        
+        <div class="kpi-card">
+            <div class="kpi-label">{% trans "Top Track" %}</div>
+            <div class="kpi-value" style="font-size: 1.25rem; padding-top: 0.5rem;" id="kpi-top-track">—</div>
+            <div class="kpi-sub">{% trans "best seller" %}</div>
+        </div>
     </div>
-  </div>
 
-</main>
+    <!-- Main Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        
+        <!-- Sales Line Chart -->
+        <div class="lg:col-span-2 chart-card">
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">{% trans "Sales Over Time" %}</div>
+                    <div class="chart-subtitle">{% trans "Licenses sold per day" %}</div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
 
+        <!-- Revenue Donut Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">{% trans "Revenue by License" %}</div>
+                    <div class="chart-subtitle">{% trans "Distribution in USD" %}</div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Top Tracks Table -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">{% trans "Top Tracks" %}</div>
+                    <div class="chart-subtitle">{% trans "Ranked by sales" %}</div>
+                </div>
+            </div>
+            <div class="chart-container table" id="tracks-table-wrap"></div>
+        </div>
+
+        <!-- Genres Bar Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">{% trans "Top Genres" %}</div>
+                    <div class="chart-subtitle">{% trans "Licenses per genre" %}</div>
+                </div>
+            </div>
+            <div class="chart-container small">
+                <canvas id="genresChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
 <script>
-  // ── Config ─────────────────────────────────────────────────────
-  const API_BASE = "/api/v2/charts";
-  const COLORS = {
-    accent:    "#c8f135",
-    accent2:   "#7b5ea7",
-    accent3:   "#f1356e",
-    basic:     "#4cc9f0",
-    premium:   "#c8f135",
-    exclusive: "#f1356e",
-    muted:     "#5a5a72",
-    border:    "#1e1e2e",
-  };
+// ══════════════════════════════════════════════════════════
+// CONFIGURATION
+// ══════════════════════════════════════════════════════════
+const API_BASE = "/api/v2/charts";
+const COLORS = {
+    accent: "#DC2626",
+    accent2: "#991b1b",
+    accent3: "#f87171",
+    basic: "#60a5fa",
+    premium: "#fbbf24",
+    exclusive: "#DC2626",
+    muted: "#71717a",
+    border: "#27272a",
+};
 
-  Chart.defaults.color = "#5a5a72";
-  Chart.defaults.font.family = "'DM Mono', monospace";
-  Chart.defaults.font.size = 11;
+// Chart.js global defaults
+Chart.defaults.color = "#71717a";
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto'";
+Chart.defaults.font.size = 12;
 
-  let currentPeriod = "30d";
-  let salesChartInst, revenueChartInst, genresChartInst;
+let currentPeriod = "30d";
+let salesChartInst, revenueChartInst, genresChartInst;
 
-  // ── Fetch helper ────────────────────────────────────────────────
-  async function apiFetch(path, params = {}) {
+// ══════════════════════════════════════════════════════════
+// API FETCH HELPER
+// ══════════════════════════════════════════════════════════
+async function apiFetch(path, params = {}) {
     const qs = new URLSearchParams({ period: currentPeriod, ...params });
     const res = await fetch(`${API_BASE}${path}?${qs}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
-  }
+}
 
-  // ── KPI cards ───────────────────────────────────────────────────
-  async function loadSummary() {
+// ══════════════════════════════════════════════════════════
+// KPI SUMMARY
+// ══════════════════════════════════════════════════════════
+async function loadSummary() {
     try {
-      const d = await apiFetch("/summary/");
-      document.getElementById("kpi-sales").textContent = d.total_sales;
-      document.getElementById("kpi-revenue").textContent = `$${d.total_revenue_usd.toLocaleString()}`;
-      document.getElementById("kpi-tracks").textContent = d.total_tracks;
-      document.getElementById("kpi-top-track").textContent = d.top_track;
-      document.getElementById("kpi-period-label").textContent = `últimos ${currentPeriod}`;
-      document.getElementById("kpi-grid").classList.add("fade-in");
-    } catch (e) {
-      console.error("summary error", e);
+        const data = await apiFetch("/summary/");
+        document.getElementById("kpi-sales").textContent = data.total_sales;
+        document.getElementById("kpi-revenue").textContent = `$${data.total_revenue_usd.toLocaleString()}`;
+        document.getElementById("kpi-tracks").textContent = data.total_tracks;
+        document.getElementById("kpi-top-track").textContent = data.top_track;
+        document.getElementById("kpi-period-label").textContent = `{% trans "last" %} ${currentPeriod}`;
+        document.getElementById("kpi-grid").classList.add("fade-in");
+    } catch (error) {
+        console.error("Summary error:", error);
     }
-  }
+}
 
-  // ── Sales line chart ────────────────────────────────────────────
-  async function loadSalesChart() {
+// ══════════════════════════════════════════════════════════
+// SALES LINE CHART
+// ══════════════════════════════════════════════════════════
+async function loadSalesChart() {
     try {
-      const d = await apiFetch("/sales/");
-      const ctx = document.getElementById("salesChart").getContext("2d");
+        const data = await apiFetch("/sales/");
+        const ctx = document.getElementById("salesChart").getContext("2d");
 
-      const gradient = ctx.createLinearGradient(0, 0, 0, 280);
-      gradient.addColorStop(0, "rgba(200,241,53,0.25)");
-      gradient.addColorStop(1, "rgba(200,241,53,0)");
+        const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+        gradient.addColorStop(0, "rgba(220, 38, 38, 0.2)");
+        gradient.addColorStop(1, "rgba(220, 38, 38, 0)");
 
-      const config = {
-        type: "line",
-        data: {
-          labels: d.labels,
-          datasets: [{
-            label: "Ventas",
-            data: d.values,
-            borderColor: COLORS.accent,
-            backgroundColor: gradient,
-            borderWidth: 2,
-            pointRadius: 3,
-            pointBackgroundColor: COLORS.accent,
-            tension: 0.4,
-            fill: true,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: {
-              grid: { color: COLORS.border },
-              ticks: { maxTicksLimit: 7 }
+        const config = {
+            type: "line",
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: "{% trans 'Sales' %}",
+                    data: data.values,
+                    borderColor: COLORS.accent,
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointBackgroundColor: COLORS.accent,
+                    pointBorderColor: "#fff",
+                    pointBorderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                }]
             },
-            y: {
-              grid: { color: COLORS.border },
-              beginAtZero: true,
-              ticks: { stepSize: 1 }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: "rgba(0, 0, 0, 0.8)",
+                        padding: 12,
+                        titleColor: "#fff",
+                        bodyColor: "#fff",
+                        borderColor: COLORS.accent,
+                        borderWidth: 1,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: COLORS.border, drawBorder: false },
+                        ticks: { maxTicksLimit: 8, color: COLORS.muted }
+                    },
+                    y: {
+                        grid: { color: COLORS.border, drawBorder: false },
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, color: COLORS.muted }
+                    }
+                }
             }
-          }
+        };
+
+        if (salesChartInst) {
+            salesChartInst.data = config.data;
+            salesChartInst.update();
+        } else {
+            salesChartInst = new Chart(ctx, config);
         }
-      };
-
-      if (salesChartInst) {
-        salesChartInst.data = config.data;
-        salesChartInst.update();
-      } else {
-        salesChartInst = new Chart(ctx, config);
-      }
-    } catch (e) {
-      document.getElementById("salesChart").parentElement.innerHTML =
-        `<div class="error-msg">No se pudieron cargar las ventas</div>`;
+    } catch (error) {
+        document.getElementById("salesChart").parentElement.innerHTML =
+            `<div class="error-msg">{% trans "Could not load sales data" %}</div>`;
     }
-  }
+}
 
-  // ── Revenue donut ───────────────────────────────────────────────
-  async function loadRevenueChart() {
+// ══════════════════════════════════════════════════════════
+// REVENUE DONUT CHART
+// ══════════════════════════════════════════════════════════
+async function loadRevenueChart() {
     try {
-      const d = await apiFetch("/revenue/");
-      const ctx = document.getElementById("revenueChart").getContext("2d");
+        const data = await apiFetch("/revenue/");
+        const ctx = document.getElementById("revenueChart").getContext("2d");
 
-      const colorMap = {
-        basic: COLORS.basic,
-        premium: COLORS.premium,
-        exclusive: COLORS.exclusive,
-      };
-      const colors = d.labels.map(l => colorMap[l] || COLORS.muted);
+        const colorMap = {
+            basic: COLORS.basic,
+            premium: COLORS.premium,
+            exclusive: COLORS.exclusive,
+        };
+        const colors = data.labels.map(l => colorMap[l] || COLORS.muted);
 
-      const config = {
-        type: "doughnut",
-        data: {
-          labels: d.labels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
-          datasets: [{
-            data: d.values,
-            backgroundColor: colors.map(c => c + "cc"),
-            borderColor: colors,
-            borderWidth: 2,
-            hoverOffset: 8,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: "68%",
-          plugins: {
-            legend: {
-              position: "bottom",
-              labels: { padding: 16, usePointStyle: true, pointStyleWidth: 8 }
+        const config = {
+            type: "doughnut",
+            data: {
+                labels: data.labels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+                datasets: [{
+                    data: data.values,
+                    backgroundColor: colors.map(c => c + "dd"),
+                    borderColor: colors,
+                    borderWidth: 2,
+                    hoverOffset: 10,
+                }]
             },
-            tooltip: {
-              callbacks: {
-                label: ctx => ` $${ctx.parsed.toLocaleString()} USD`
-              }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "70%",
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyleWidth: 10,
+                            color: "#e4e4e7",
+                            font: { size: 13 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: "rgba(0, 0, 0, 0.8)",
+                        padding: 12,
+                        callbacks: {
+                            label: ctx => ` $${ctx.parsed.toLocaleString()} USD`
+                        }
+                    }
+                }
             }
-          }
+        };
+
+        if (revenueChartInst) {
+            revenueChartInst.data = config.data;
+            revenueChartInst.update();
+        } else {
+            revenueChartInst = new Chart(ctx, config);
         }
-      };
-
-      if (revenueChartInst) {
-        revenueChartInst.data = config.data;
-        revenueChartInst.update();
-      } else {
-        revenueChartInst = new Chart(ctx, config);
-      }
-    } catch (e) {
-      document.getElementById("revenueChart").parentElement.innerHTML =
-        `<div class="error-msg">No se pudieron cargar los ingresos</div>`;
+    } catch (error) {
+        document.getElementById("revenueChart").parentElement.innerHTML =
+            `<div class="error-msg">{% trans "Could not load revenue data" %}</div>`;
     }
-  }
+}
 
-  // ── Top tracks table ────────────────────────────────────────────
-  async function loadTopTracks() {
+// ══════════════════════════════════════════════════════════
+// TOP TRACKS TABLE
+// ══════════════════════════════════════════════════════════
+async function loadTopTracks() {
     const wrap = document.getElementById("tracks-table-wrap");
     try {
-      const d = await apiFetch("/top-tracks/", { period: undefined });
+        const data = await apiFetch("/top-tracks/", { period: undefined });
 
-      if (!d.tracks.length) {
-        wrap.innerHTML = `<div class="error-msg">Sin datos aún</div>`;
-        return;
-      }
-
-      const rows = d.tracks.map((t, i) => {
-        const rankClass = i < 3 ? `rank-${i+1}` : "";
-        const badge = t.is_sold
-          ? `<span class="badge badge-sold">vendido</span>`
-          : `<span class="badge badge-available">disponible</span>`;
-        return `
-          <tr>
-            <td><span class="rank ${rankClass}">#${i+1}</span></td>
-            <td>${t.title}</td>
-            <td>${t.genre}</td>
-            <td style="color:var(--accent);font-weight:500">${t.sales_count}</td>
-            <td>${badge}</td>
-          </tr>`;
-      }).join("");
-
-      wrap.innerHTML = `
-        <table class="tracks-table">
-          <thead>
-            <tr>
-              <th>#</th><th>Track</th><th>Género</th><th>Ventas</th><th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>`;
-    } catch (e) {
-      wrap.innerHTML = `<div class="error-msg">No se pudieron cargar los tracks</div>`;
-    }
-  }
-
-  // ── Genres bar chart ────────────────────────────────────────────
-  async function loadGenresChart() {
-    try {
-      const d = await apiFetch("/top-genres/");
-      const ctx = document.getElementById("genresChart").getContext("2d");
-
-      const palette = [
-        COLORS.accent, COLORS.accent2, COLORS.accent3, COLORS.basic,
-        "#f7b731", "#a29bfe", "#fd79a8", "#00cec9"
-      ];
-
-      const config = {
-        type: "bar",
-        data: {
-          labels: d.labels,
-          datasets: [{
-            label: "Licencias",
-            data: d.values,
-            backgroundColor: d.labels.map((_, i) => palette[i % palette.length] + "bb"),
-            borderColor:     d.labels.map((_, i) => palette[i % palette.length]),
-            borderWidth: 1,
-            borderRadius: 4,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          indexAxis: "y",
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { color: COLORS.border }, beginAtZero: true, ticks: { stepSize: 1 } },
-            y: { grid: { display: false } }
-          }
+        if (!data.tracks.length) {
+            wrap.innerHTML = `<div class="error-msg">{% trans "No data available yet" %}</div>`;
+            return;
         }
-      };
 
-      if (genresChartInst) {
-        genresChartInst.data = config.data;
-        genresChartInst.update();
-      } else {
-        genresChartInst = new Chart(ctx, config);
-      }
-    } catch (e) {
-      document.getElementById("genresChart").parentElement.innerHTML =
-        `<div class="error-msg">No se pudieron cargar los géneros</div>`;
+        const rows = data.tracks.map((track, index) => {
+            const rankClass = index < 3 ? `rank-${index + 1}` : "";
+            const badge = track.is_sold
+                ? `<span class="track-badge badge-sold">{% trans "Sold" %}</span>`
+                : `<span class="track-badge badge-available">{% trans "Available" %}</span>`;
+            
+            return `
+                <tr>
+                    <td><span class="rank ${rankClass}">#${index + 1}</span></td>
+                    <td style="font-weight: 600">${track.title}</td>
+                    <td>${track.genre}</td>
+                    <td style="color: var(--chart-accent); font-weight: 700">${track.sales_count}</td>
+                    <td>${badge}</td>
+                </tr>`;
+        }).join("");
+
+        wrap.innerHTML = `
+            <table class="tracks-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>{% trans "Track" %}</th>
+                        <th>{% trans "Genre" %}</th>
+                        <th>{% trans "Sales" %}</th>
+                        <th>{% trans "Status" %}</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+    } catch (error) {
+        wrap.innerHTML = `<div class="error-msg">{% trans "Could not load tracks data" %}</div>`;
     }
-  }
+}
 
-  // ── Load all ────────────────────────────────────────────────────
-  function loadAll() {
+// ══════════════════════════════════════════════════════════
+// GENRES BAR CHART
+// ══════════════════════════════════════════════════════════
+async function loadGenresChart() {
+    try {
+        const data = await apiFetch("/top-genres/");
+        const ctx = document.getElementById("genresChart").getContext("2d");
+
+        const palette = [
+            COLORS.accent, COLORS.basic, COLORS.premium, COLORS.accent3,
+            "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"
+        ];
+
+        const config = {
+            type: "bar",
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: "{% trans 'Licenses' %}",
+                    data: data.values,
+                    backgroundColor: data.labels.map((_, i) => palette[i % palette.length] + "dd"),
+                    borderColor: data.labels.map((_, i) => palette[i % palette.length]),
+                    borderWidth: 2,
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: "y",
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: "rgba(0, 0, 0, 0.8)",
+                        padding: 12,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: COLORS.border, drawBorder: false },
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, color: COLORS.muted }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: "#e4e4e7" }
+                    }
+                }
+            }
+        };
+
+        if (genresChartInst) {
+            genresChartInst.data = config.data;
+            genresChartInst.update();
+        } else {
+            genresChartInst = new Chart(ctx, config);
+        }
+    } catch (error) {
+        document.getElementById("genresChart").parentElement.innerHTML =
+            `<div class="error-msg">{% trans "Could not load genres data" %}</div>`;
+    }
+}
+
+// ══════════════════════════════════════════════════════════
+// LOAD ALL CHARTS
+// ══════════════════════════════════════════════════════════
+function loadAll() {
     loadSummary();
     loadSalesChart();
     loadRevenueChart();
     loadTopTracks();
     loadGenresChart();
-  }
+}
 
-  // ── Period selector ─────────────────────────────────────────────
-  document.querySelectorAll(".period-tabs button").forEach(btn => {
+// ══════════════════════════════════════════════════════════
+// PERIOD SELECTOR
+// ══════════════════════════════════════════════════════════
+document.querySelectorAll(".period-selector button").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".period-tabs button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentPeriod = btn.dataset.period;
-      loadAll();
+        document.querySelectorAll(".period-selector button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentPeriod = btn.dataset.period;
+        loadAll();
     });
-  });
+});
 
-  // ── Init ────────────────────────────────────────────────────────
-  loadAll();
+// ══════════════════════════════════════════════════════════
+// INITIALIZE
+// ══════════════════════════════════════════════════════════
+loadAll();
 </script>
-</body>
-</html>
+{% endblock %}

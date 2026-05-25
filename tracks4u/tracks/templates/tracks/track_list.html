@@ -1,76 +1,154 @@
+{% extends "base.html" %}
+{% load i18n %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Tracks</title>
-    <style>
-        body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; }
-        a { color: #007bff; text-decoration: none; }
 
-        .track {
-            border: 1px solid #ddd;
-            margin: 10px 0;
-            display: flex;
-            align-items: stretch;
-        }
-        .track-cover {
-            width: 160px;
-            min-width: 160px;
-            object-fit: cover;
-        }
-        .track-cover-placeholder {
-            width: 160px;
-            min-width: 160px;
-            background: #eee;
-        }
-        .track-info {
-            padding: 15px;
-            flex: 1;
-        }
-    </style>
-</head>
-<body>
-    <h1>Todos los Tracks</h1>
-    <a href="{% url 'track-create' %}">Subir nuevo track</a>
-    <hr>
+{% block title %}{% trans "All Tracks" %} - Tracks4U{% endblock %}
 
-    {% for track in tracks %}
-    <div class="track">
-
-        {% if track.cover_image %}
-            <img src="{{ track.cover_image.url }}" class="track-cover">
-        {% else %}
-            <img src="{% static 'img/base_cover.jpg' %}" class="track-cover">
-        {% endif %}
-
-        <div class="track-info">
-            <h3>{{ track.title }}</h3>
-
-            <audio controls style="width: 100%; margin: 10px 0;">
-                <source src="{{ track.audio_file.url }}" type="audio/mpeg">
-                <source src="{{ track.audio_file.url }}" type="audio/wav">
-                <source src="{{ track.audio_file.url }}" type="audio/ogg">
-            </audio>
-
-            <p>BPM: {{ track.bpm }} 
-            <p>Género: {{ track.genre }}</p>
-            <p>Sales_count: {{ track.sales_count }}</p>
-            <p>Subido: {{ track.created_at|date:"d/m/Y H:i" }}</p>
-
-            {% if track.is_sold %}
-                <p style="color: red;">Vendido</p>
-            {% else %}
-                <p style="color: green;">Disponible</p>
-                <a href="{% url 'track-detail' track.pk %}">
-                     <button>Comprar licencia</button>
-                </a>
-            {% endif %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div>
+            <h1 class="text-4xl font-bold text-white mb-2">{% trans "All Tracks" %}</h1>
+            <p class="text-zinc-400">{% trans "Explore our collection of premium beats and samples" %}</p>
         </div>
-
+        <a
+            href="{% url 'track-create' %}"
+            class="mt-4 md:mt-0 inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg shadow-red-900/50 transition-all hover:shadow-red-900/70 hover:-translate-y-0.5"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            {% trans "Upload New Track" %}
+        </a>
     </div>
-    {% empty %}
-    <p>No hay tracks disponibles.</p>
-    {% endfor %}
 
-</body>
-</html>
+    <!-- Tracks Grid -->
+    <div class="space-y-4">
+        {% for track in tracks %}
+        <div class="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-700 transition-all group">
+            <div class="flex flex-col md:flex-row">
+                <!-- Cover Image -->
+                <div class="md:w-64 h-48 md:h-auto flex-shrink-0 overflow-hidden bg-zinc-800">
+                    {% if track.cover_image %}
+                        <img
+                            src="{{ track.cover_image.url }}"
+                            alt="{{ track.title }}"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        >
+                    {% else %}
+                        <img
+                            src="{% static 'img/base_cover.jpg' %}"
+                            alt="{% trans 'Default cover' %}"
+                            class="w-full h-full object-cover opacity-50"
+                        >
+                    {% endif %}
+                </div>
+
+                <!-- Track Info -->
+                <div class="flex-1 p-6">
+                    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors">
+                                {{ track.title }}
+                            </h3>
+
+                            <!-- Audio Player -->
+                            <audio
+                                controls
+                                class="w-full mb-4 h-10"
+                                style="filter: brightness(0.9);"
+                            >
+                                <source src="{{ track.audio_file.url }}" type="audio/mpeg">
+                                <source src="{{ track.audio_file.url }}" type="audio/wav">
+                                <source src="{{ track.audio_file.url }}" type="audio/ogg">
+                                {% trans "Your browser does not support the audio element." %}
+                            </audio>
+
+                            <!-- Track Details -->
+                            <div class="flex flex-wrap gap-4 text-sm text-zinc-400 mb-3">
+                                <div class="flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 18V5l12-2v13"></path>
+                                        <circle cx="6" cy="18" r="3"></circle>
+                                        <circle cx="18" cy="16" r="3"></circle>
+                                    </svg>
+                                    <span>{{ track.bpm }} BPM</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polygon points="10 8 16 12 10 16 10 8"></polygon>
+                                    </svg>
+                                    <span>{{ track.genre }}</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                    <span>{% blocktrans with count=track.sales_count %}{{ count }} sales{% endblocktrans %}</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    <span>{{ track.created_at|date:"d/m/Y" }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status & Action -->
+                        <div class="flex flex-col items-end gap-3">
+                            {% if track.is_sold %}
+                                <span class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 6L9 17l-5-5"></path>
+                                    </svg>
+                                    {% trans "Sold" %}
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-2 px-4 py-2 bg-green-900/20 border border-green-800 rounded-lg text-green-400">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                    {% trans "Available" %}
+                                </span>
+                                <a
+                                    href="{% url 'track-detail' track.pk %}"
+                                    class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg shadow-red-900/50 transition-all hover:shadow-red-900/70 hover:-translate-y-0.5"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="9" cy="21" r="1"></circle>
+                                        <circle cx="20" cy="21" r="1"></circle>
+                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                    </svg>
+                                    {% trans "Buy License" %}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-16">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-zinc-800 rounded-full mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-600">
+                    <circle cx="8" cy="18" r="4"/>
+                    <path d="M12 18V2l7 4"/>
+                </svg>
+            </div>
+            <p class="text-zinc-400 text-lg">{% trans "No tracks available yet." %}</p>
+            <a
+                href="{% url 'track-create' %}"
+                class="inline-block mt-4 text-red-500 hover:text-red-400 font-medium"
+            >
+                {% trans "Upload the first track" %}
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+    

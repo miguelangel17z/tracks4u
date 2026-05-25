@@ -1,57 +1,202 @@
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{% get_current_language as LANGUAGE_CODE %}{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
-</head>
-<body>
-    <h2>Iniciar Sesión</h2>
-    <input type="username" id="username" placeholder="Email"><br><br>
-    <input type="password" id="password" placeholder="Contraseña"><br><br>
-    <button onclick="login()">Entrar</button>
-
-    <p id="mensaje"></p>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Login" %} - Tracks4U</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        function getCsrfToken() {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let cookie of cookies) {
-                cookie = cookie.trim();
-                if (cookie.startsWith('csrftoken=')) {
-                    cookieValue = decodeURIComponent(cookie.substring('csrftoken='.length));
-                    break;
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'zinc': {
+                            400: '#a1a1aa',
+                            500: '#71717a',
+                            600: '#52525b',
+                            700: '#3f3f46',
+                            800: '#27272a',
+                            900: '#18181b',
+                            950: '#09090b',
+                        }
+                    }
                 }
             }
         }
-        return cookieValue;
-    }
+    </script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        .btn-primary {
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 20px 25px -5px rgba(220, 38, 38, 0.5), 0 8px 10px -6px rgba(220, 38, 38, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .input-field {
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            border-color: #DC2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-zinc-950">
+    <div class="relative w-full min-h-screen bg-zinc-950 overflow-hidden flex items-center justify-center">
+        <!-- Background Image with Overlay -->
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute inset-0 bg-gradient-to-b from-zinc-950 via-zinc-950/80 to-zinc-950"></div>
+        </div>
+
+        <!-- Login Card -->
+        <div class="relative z-10 w-full max-w-md mx-4 fade-in">
+            <!-- Logo -->
+            <div class="flex flex-col items-center mb-8">
+                <a href="/" class="flex items-center gap-2 mb-2">
+                    <div class="w-10 h-10 bg-gradient-to-br from-red-600 to-red-700 rounded-lg flex items-center justify-center shadow-lg shadow-red-900/50">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+                            <circle cx="8" cy="18" r="4"/>
+                            <path d="M12 18V2l7 4"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-3xl font-bold text-white tracking-tight">
+                        Tracks<span class="text-red-600">4</span>U
+                    </h1>
+                </a>
+                <p class="text-zinc-400 text-sm">{% trans "Sign in to continue" %}</p>
+            </div>
+
+            <!-- Login Form -->
+            <div class="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 rounded-xl p-8 shadow-2xl">
+                <h2 class="text-2xl font-bold text-white mb-6">{% trans "Login" %}</h2>
+
+                <div class="space-y-4">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-zinc-300 mb-2">
+                            {% trans "Username" %}
+                        </label>
+                        <input
+                            type="text"
+                            id="username"
+                            placeholder="{% trans 'Enter your username' %}"
+                            class="input-field w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none"
+                        >
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-zinc-300 mb-2">
+                            {% trans "Password" %}
+                        </label>
+                        <input
+                            type="password"
+                            id="password"
+                            placeholder="{% trans 'Enter your password' %}"
+                            class="input-field w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none"
+                        >
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="mensaje" class="hidden p-4 bg-red-900/20 border border-red-800 rounded-lg">
+                        <p class="text-red-400 text-sm"></p>
+                    </div>
+
+                    <button
+                        onclick="login()"
+                        class="btn-primary w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold shadow-lg shadow-red-900/50"
+                    >
+                        {% trans "Sign In" %}
+                    </button>
+                </div>
+
+                <div class="mt-6 text-center">
+                    <p class="text-zinc-400 text-sm">
+                        {% trans "Don't have an account?" %}
+                        <a href="{% url 'register' %}" class="text-red-500 hover:text-red-400 font-medium">
+                            {% trans "Sign up" %}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getCsrfToken() {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith('csrftoken=')) {
+                        cookieValue = decodeURIComponent(cookie.substring('csrftoken='.length));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
         async function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            const mensajeEl = document.getElementById('mensaje');
 
-            const response = await fetch("{% url 'api-login' %}", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json',
-                            'X-CSRFToken': getCsrfToken(), 
-                 },
+            if (!username || !password) {
+                mensajeEl.querySelector('p').textContent = "{% trans 'Please fill in all fields' %}";
+                mensajeEl.classList.remove('hidden');
+                return;
+            }
 
-                body: JSON.stringify({ username, password })
-            });
+            try {
+                const response = await fetch("{% url 'api-login' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken(),
+                    },
+                    body: JSON.stringify({ username, password })
+                });
 
-            const data = await response.json();
+                const data = await response.json();
 
-            if (response.ok) {
-             localStorage.setItem('token', data.access); // guardar el token
-            window.location.href = '/tracks/';  // redirigir a profile
-
-                document.getElementById('mensaje').textContent = 'Login exitoso';
-                console.log('Token:', data.access); // si usas tokens
-            } else {
-                document.getElementById('mensaje').textContent = 'Error: ' + JSON.stringify(data);
+                if (response.ok) {
+                    localStorage.setItem('token', data.access);
+                    window.location.href = '/tracks/';
+                } else {
+                    mensajeEl.querySelector('p').textContent = data.detail || "{% trans 'Invalid credentials' %}";
+                    mensajeEl.classList.remove('hidden');
+                }
+            } catch (error) {
+                mensajeEl.querySelector('p').textContent = "{% trans 'Connection error. Please try again.' %}";
+                mensajeEl.classList.remove('hidden');
             }
         }
+
+        // Allow Enter key to submit
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
     </script>
 </body>
 </html>

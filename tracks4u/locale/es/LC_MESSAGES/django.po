@@ -1,4 +1,4 @@
-# ENGLISH TRANSLATIONS FOR TRACKS4U
+# SPANISH TRANSLATIONS FOR TRACKS4U
 # Copyright (C) 2024 Tracks4U
 # This file is distributed under the same license as the Tracks4U package.
 #
@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Tracks4U 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-25 19:34+0000\n"
+"POT-Creation-Date: 2026-05-25 19:35+0000\n"
 "PO-Revision-Date: 2026-05-25 20:00+0000\n"
 "Last-Translator: Tracks4U Team\n"
-"Language-Team: English\n"
-"Language: en\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,411 +21,410 @@ msgstr ""
 # ==========================================
 
 msgid "Tracks"
-msgstr "Tracks"
+msgstr "Pistas"
 
 msgid "Upload Track"
-msgstr "Upload Track"
+msgstr "Subir Pista"
 
 msgid "Profile"
-msgstr "Profile"
+msgstr "Perfil"
 
 msgid "Logout"
-msgstr "Logout"
+msgstr "Cerrar Sesión"
 
 msgid "All rights reserved."
-msgstr "All rights reserved."
+msgstr "Todos los derechos reservados."
 
 # ==========================================
 # LOGIN
 # ==========================================
 
 msgid "Login"
-msgstr "Login"
+msgstr "Iniciar Sesión"
 
 msgid "Sign in to continue"
-msgstr "Sign in to continue"
+msgstr "Inicia sesión para continuar"
 
 msgid "Username"
-msgstr "Username"
+msgstr "Nombre de Usuario"
 
 msgid "Enter your username"
-msgstr "Enter your username"
+msgstr "Ingresa tu nombre de usuario"
 
 msgid "Password"
-msgstr "Password"
+msgstr "Contraseña"
 
 msgid "Enter your password"
-msgstr "Enter your password"
+msgstr "Ingresa tu contraseña"
 
 msgid "Sign In"
-msgstr "Sign In"
+msgstr "Entrar"
 
 msgid "Don't have an account?"
-msgstr "Don't have an account?"
+msgstr "¿No tienes una cuenta?"
 
 msgid "Sign up"
-msgstr "Sign up"
+msgstr "Regístrate"
 
 msgid "Please fill in all fields"
-msgstr "Please fill in all fields"
+msgstr "Por favor, completa todos los campos"
 
 msgid "Invalid credentials"
-msgstr "Invalid credentials"
+msgstr "Credenciales inválidas"
 
 # ==========================================
 # REGISTER
 # ==========================================
 
 msgid "Register"
-msgstr "Register"
+msgstr "Registrarse"
 
 msgid "Create your account"
-msgstr "Create your account"
+msgstr "Crea tu cuenta"
 
 msgid "Choose a username"
-msgstr "Choose a username"
+msgstr "Elige un nombre de usuario"
 
 msgid "Email"
-msgstr "Email"
+msgstr "Correo Electrónico"
 
 msgid "Enter your email"
-msgstr "Enter your email"
+msgstr "Ingresa tu correo electrónico"
 
 msgid "Create a password"
-msgstr "Create a password"
+msgstr "Crea una contraseña"
 
 msgid "Create Account"
-msgstr "Create Account"
+msgstr "Crear Cuenta"
 
 msgid "Already have an account?"
-msgstr "Already have an account?"
+msgstr "¿Ya tienes una cuenta?"
 
 msgid "Sign in"
-msgstr "Sign in"
+msgstr "Inicia sesión"
 
 msgid "Account created successfully! Redirecting to login..."
-msgstr "Account created successfully! Redirecting to login..."
+msgstr "¡Cuenta creada exitosamente! Redirigiendo al inicio de sesión..."
 
 # ==========================================
 # PROFILE
 # ==========================================
 
 msgid "My Profile"
-msgstr "My Profile"
+msgstr "Mi Perfil"
 
 msgid "Edit Profile"
-msgstr "Edit Profile"
+msgstr "Editar Perfil"
 
 msgid "View Profile"
-msgstr "View Profile"
+msgstr "Ver Perfil"
 
 msgid "Update Profile"
-msgstr "Update Profile"
+msgstr "Actualizar Perfil"
 
 msgid "Update your account information"
-msgstr "Update your account information"
+msgstr "Actualiza la información de tu cuenta"
 
 msgid "Current Username"
-msgstr "Current Username"
+msgstr "Nombre de Usuario Actual"
 
 msgid "New username (leave empty to keep current)"
-msgstr "New username (leave empty to keep current)"
+msgstr "Nuevo nombre de usuario (dejar vacío para mantener el actual)"
 
 msgid "Current Email"
-msgstr "Current Email"
+msgstr "Email Actual"
 
 msgid "New email (leave empty to keep current)"
-msgstr "New email (leave empty to keep current)"
+msgstr "Nuevo email (dejar vacío para mantener el actual)"
 
 msgid "New Password"
-msgstr "New Password"
+msgstr "Nueva Contraseña"
 
 msgid "New password (leave empty to keep current)"
-msgstr "New password (leave empty to keep current)"
+msgstr "Nueva contraseña (dejar vacío para mantener la actual)"
 
 msgid "Leave empty to keep current password"
-msgstr "Leave empty to keep current password"
+msgstr "Dejar vacío para mantener la contraseña actual"
 
 msgid "Enter new username"
-msgstr "Enter new username"
+msgstr "Ingresa nuevo nombre de usuario"
 
 msgid "Enter new email"
-msgstr "Enter new email"
+msgstr "Ingresa nuevo correo electrónico"
 
 msgid "Save Changes"
-msgstr "Save Changes"
+msgstr "Guardar Cambios"
 
 msgid "Cancel"
-msgstr "Cancel"
+msgstr "Cancelar"
 
 msgid "No changes detected. Please modify at least one field."
-msgstr "No changes detected. Please modify at least one field."
+msgstr "No se detectaron cambios. Por favor, modifica al menos un campo."
 
 msgid "Profile updated successfully!"
-msgstr "Profile updated successfully!"
+msgstr "¡Perfil actualizado exitosamente!"
 
 msgid "Error loading profile data"
-msgstr "Error loading profile data"
+msgstr "Error al cargar datos del perfil"
 
 msgid "Loading..."
-msgstr "Loading..."
+msgstr "Cargando..."
 
 # ==========================================
 # LICENSES
 # ==========================================
 
 msgid "My Licenses"
-msgstr "My Licenses"
+msgstr "Mis Licencias"
 
 msgid "licenses purchased"
-msgstr "licenses purchased"
+msgstr "licencias compradas"
 
 msgid "Loading licenses..."
-msgstr "Loading licenses..."
+msgstr "Cargando licencias..."
 
 msgid "No licenses purchased yet"
-msgstr "No licenses purchased yet"
+msgstr "No has comprado licencias aún"
 
 msgid "Browse tracks"
-msgstr "Browse tracks"
+msgstr "Explorar pistas"
 
 msgid "Total Licenses"
-msgstr "Total Licenses"
+msgstr "Total de Licencias"
 
 msgid "License Types"
-msgstr "License Types"
+msgstr "Tipos de Licencia"
 
 msgid "Basic"
-msgstr "Basic"
+msgstr "Básica"
 
 msgid "Premium"
 msgstr "Premium"
 
 msgid "Exclusive"
-msgstr "Exclusive"
+msgstr "Exclusiva"
 
 # ==========================================
 # TRACKS LIST
 # ==========================================
 
 msgid "All Tracks"
-msgstr "All Tracks"
+msgstr "Todas las Pistas"
 
 msgid "Explore our collection of premium beats and samples"
-msgstr "Explore our collection of premium beats and samples"
+msgstr "Explora nuestra colección de beats y samples premium"
 
 msgid "Upload New Track"
-msgstr "Upload New Track"
+msgstr "Subir Nueva Pista"
 
 msgid "Available"
-msgstr "Available"
+msgstr "Disponible"
 
 msgid "Sold"
-msgstr "Sold"
+msgstr "Vendido"
 
 msgid "Buy License"
-msgstr "Buy License"
+msgstr "Comprar Licencia"
 
 msgid "No tracks available yet."
-msgstr "No tracks available yet."
+msgstr "No hay pistas disponibles aún."
 
 msgid "Upload the first track"
-msgstr "Upload the first track"
+msgstr "Sube la primera pista"
 
 msgid "Your browser does not support the audio element."
-msgstr "Your browser does not support the audio element."
+msgstr "Tu navegador no soporta el elemento de audio."
 
 #, python-format
 msgid "%(count)s sales"
-msgstr "%(count)s sales"
+msgstr "%(count)s ventas"
 
 # ==========================================
 # TRACK DETAIL
 # ==========================================
 
 msgid "Back to Tracks"
-msgstr "Back to Tracks"
+msgstr "Volver a Pistas"
 
 msgid "Default cover"
-msgstr "Default cover"
+msgstr "Portada predeterminada"
 
 msgid "BPM"
 msgstr "BPM"
 
 msgid "Genre"
-msgstr "Genre"
-
+msgstr "Género"
 
 
 msgid "Uploaded"
-msgstr "Uploaded"
+msgstr "Subido"
 
 msgid "Purchase License"
-msgstr "Purchase License"
+msgstr "Comprar Licencia"
 
 msgid "Select a license type to view the price"
-msgstr "Select a license type to view the price"
+msgstr "Selecciona un tipo de licencia para ver el precio"
 
 msgid "License Type"
-msgstr "License Type"
+msgstr "Tipo de Licencia"
 
 msgid "Basic — $9.99 USD"
-msgstr "Basic — $9.99 USD"
+msgstr "Básica — $9.99 USD"
 
 msgid "Premium — $29.99 USD"
 msgstr "Premium — $29.99 USD"
 
 msgid "Exclusive — $99.99 USD"
-msgstr "Exclusive — $99.99 USD"
+msgstr "Exclusiva — $99.99 USD"
 
 msgid "Currency"
-msgstr "Currency"
+msgstr "Moneda"
 
 msgid "Colombian Peso"
-msgstr "Colombian Peso"
+msgstr "Peso Colombiano"
 
 msgid "US Dollar"
-msgstr "US Dollar"
+msgstr "Dólar Estadounidense"
 
 msgid "Euro"
 msgstr "Euro"
 
 msgid "British Pound"
-msgstr "British Pound"
+msgstr "Libra Esterlina"
 
 msgid "Japanese Yen"
-msgstr "Japanese Yen"
+msgstr "Yen Japonés"
 
 msgid "Swiss Franc"
-msgstr "Swiss Franc"
+msgstr "Franco Suizo"
 
 msgid "Canadian Dollar"
-msgstr "Canadian Dollar"
+msgstr "Dólar Canadiense"
 
 msgid "Australian Dollar"
-msgstr "Australian Dollar"
+msgstr "Dólar Australiano"
 
 msgid "Chinese Yuan"
-msgstr "Chinese Yuan"
+msgstr "Yuan Chino"
 
 msgid "Singapore Dollar"
-msgstr "Singapore Dollar"
+msgstr "Dólar de Singapur"
 
 msgid "Mexican Peso"
-msgstr "Mexican Peso"
+msgstr "Peso Mexicano"
 
 msgid "Brazilian Real"
-msgstr "Brazilian Real"
+msgstr "Real Brasileño"
 
 msgid "License"
-msgstr "License"
+msgstr "Licencia"
 
 msgid "purchased successfully!"
-msgstr "purchased successfully!"
+msgstr "comprada exitosamente!"
 
 msgid "Receipt"
-msgstr "Receipt"
+msgstr "Recibo"
 
 # ==========================================
 # TRACK FORM
 # ==========================================
 
 msgid "Create Track"
-msgstr "Create Track"
+msgstr "Crear Pista"
 
 msgid "Share your music with the world"
-msgstr "Share your music with the world"
+msgstr "Comparte tu música con el mundo"
 
 # ==========================================
 # ERRORS
 # ==========================================
 
 msgid "Connection error. Please try again."
-msgstr "Connection error. Please try again."
+msgstr "Error de conexión. Por favor, inténtalo de nuevo."
 # ==========================================
 # ANALYTICS DASHBOARD
 # ==========================================
 
 msgid "Analytics Dashboard"
-msgstr "Analytics Dashboard"
+msgstr "Panel de Análisis"
 
 msgid "Track performance metrics and sales insights"
-msgstr "Track performance metrics and sales insights"
+msgstr "Métricas de rendimiento e información de ventas"
 
 msgid "Total Sales"
-msgstr "Total Sales"
+msgstr "Ventas Totales"
 
 msgid "Revenue (USD)"
-msgstr "Revenue (USD)"
+msgstr "Ingresos (USD)"
 
 msgid "Active Tracks"
-msgstr "Active Tracks"
+msgstr "Pistas Activas"
 
 msgid "Top Track"
-msgstr "Top Track"
+msgstr "Pista Principal"
 
 msgid "loading..."
-msgstr "loading..."
+msgstr "cargando..."
 
 msgid "selected period"
-msgstr "selected period"
+msgstr "período seleccionado"
 
 msgid "in catalog"
-msgstr "in catalog"
+msgstr "en catálogo"
 
 msgid "best seller"
-msgstr "best seller"
+msgstr "más vendida"
 
 msgid "last"
-msgstr "last"
+msgstr "últimos"
 
 msgid "Sales Over Time"
-msgstr "Sales Over Time"
+msgstr "Ventas en el Tiempo"
 
 msgid "Licenses sold per day"
-msgstr "Licenses sold per day"
+msgstr "Licencias vendidas por día"
 
 msgid "Revenue by License"
-msgstr "Revenue by License"
+msgstr "Ingresos por Licencia"
 
 msgid "Distribution in USD"
-msgstr "Distribution in USD"
+msgstr "Distribución en USD"
 
 msgid "Top Tracks"
-msgstr "Top Tracks"
+msgstr "Top Pistas"
 
 msgid "Ranked by sales"
-msgstr "Ranked by sales"
+msgstr "Ordenadas por ventas"
 
 msgid "Top Genres"
-msgstr "Top Genres"
+msgstr "Géneros Principales"
 
 msgid "Licenses per genre"
-msgstr "Licenses per genre"
+msgstr "Licencias por género"
 
 msgid "Sales"
-msgstr "Sales"
+msgstr "Ventas"
 
 msgid "Licenses"
-msgstr "Licenses"
+msgstr "Licencias"
 
 msgid "Track"
-msgstr "Track"
+msgstr "Pista"
 
 msgid "Status"
-msgstr "Status"
+msgstr "Estado"
 
 msgid "Could not load sales data"
-msgstr "Could not load sales data"
+msgstr "No se pudieron cargar los datos de ventas"
 
 msgid "Could not load revenue data"
-msgstr "Could not load revenue data"
+msgstr "No se pudieron cargar los datos de ingresos"
 
 msgid "Could not load tracks data"
-msgstr "Could not load tracks data"
+msgstr "No se pudieron cargar los datos de pistas"
 
 msgid "Could not load genres data"
-msgstr "Could not load genres data"
+msgstr "No se pudieron cargar los datos de géneros"
 
 msgid "No data available yet"
-msgstr "No data available yet"
+msgstr "No hay datos disponibles aún"
