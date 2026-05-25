@@ -23,8 +23,18 @@ def _date_filter(period: str):
     }
     return periods.get(period)
 
+def get_dashboard_data(period="30d"):
 
-# ── 1. Ventas totales por período ─────────────────────────────────
+    return {
+        "summary": get_summary(period),
+        "sales": get_sales_by_period(period),
+        "revenue": get_revenue(period),
+        "top_tracks": get_top_tracks(10),
+        "top_genres": get_top_genres(period),
+    }
+
+
+#  Ventas totales por período 
 
 def get_sales_by_period(period: str = "30d") -> dict:
     """
@@ -52,7 +62,7 @@ def get_sales_by_period(period: str = "30d") -> dict:
     }
 
 
-# ── 2. Ingresos totales y por tipo de licencia ────────────────────
+#  Ingresos totales y por tipo de licencia 
 
 def get_revenue(period: str = "30d") -> dict:
     """
@@ -93,7 +103,7 @@ def get_revenue(period: str = "30d") -> dict:
     }
 
 
-# ── 3. Tracks más vendidos ────────────────────────────────────────
+#  Tracks más vendidos 
 
 def get_top_tracks(limit: int = 10) -> dict:
     """
@@ -122,7 +132,7 @@ def get_top_tracks(limit: int = 10) -> dict:
     }
 
 
-# ── 4. Géneros más vendidos ───────────────────────────────────────
+#  Géneros más vendidos 
 
 def get_top_genres(period: str = "30d") -> dict:
     """
@@ -148,7 +158,7 @@ def get_top_genres(period: str = "30d") -> dict:
     }
 
 
-# ── 5. Resumen general (KPI cards) ────────────────────────────────
+#   Resumen general (KPI cards) 
 
 def get_summary(period: str = "30d") -> dict:
     """

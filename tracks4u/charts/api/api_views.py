@@ -76,3 +76,20 @@ class SummaryView(APIView):
         period = request.query_params.get("period", "30d")
         data = services.get_summary(period)
         return Response(SummarySerializer(data).data)
+
+
+class DashboardDataView(APIView):
+    """
+    GET /internal/charts/dashboard/?period=30d
+    Toda la información consolidada del dashboard.
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+
+        period = request.query_params.get("period", "30d")
+
+        data = services.get_dashboard_data(period)
+
+        return Response(data)

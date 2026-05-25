@@ -26,6 +26,17 @@ def fetch_from_django(path: str, params: dict = None):
     except Exception as e:
         return {"error": str(e)}, 500
 
+@app.route("/api/v2/charts/dashboard/", methods=["GET"])
+def dashboard_data():
+
+    period = request.args.get("period", "30d")
+
+    data, status = fetch_from_django(
+        "/dashboard/",
+        {"period": period}
+    )
+
+    return jsonify(data), status
 
 # ── Página principal del dashboard ───────────────────────────────
 

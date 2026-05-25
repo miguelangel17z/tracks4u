@@ -1,5 +1,6 @@
 from django.urls import path
 from charts.api.api_views import (
+    DashboardDataView,
     SalesByPeriodView,
     RevenueView,
     TopTracksView,
@@ -16,4 +17,5 @@ urlpatterns = [
     path("top-tracks/", TopTracksView.as_view(),      name="charts-top-tracks"),
     path("top-genres/", TopGenresView.as_view(),      name="charts-top-genres"),
     path("summary/",    SummaryView.as_view(),         name="charts-summary"),
+    path("dashboard/", DashboardDataView.as_view(), name="dashboard-data"),
 ]

@@ -11,9 +11,5 @@ urlpatterns = [
     path('api/register/', apiRegisterView.as_view(), name='api-register'),
     path('profile/', UpdateProfileView.as_view(), name='profile'),
     path('api/profile/', apiUpdateProfileView.as_view(), name='api-profile'),
-    path('i18n/', include('django.conf.urls.i18n')),  # ← agregar
-    
-
-
-    
+        
 ]

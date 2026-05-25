@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Charts — Beat Dashboard</title>
+  <title>Track4U</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -12,14 +12,14 @@
       --bg:       #0a0a0f;
       --surface:  #111118;
       --border:   #1e1e2e;
-      --accent:   #c8f135;
-      --accent2:  #7b5ea7;
-      --accent3:  #f1356e;
+      --accent:   #DC2626;
+      --accent2:  #991b1b;
+      --accent3:  #f87171;
       --text:     #e8e8f0;
-      --muted:    #5a5a72;
-      --basic:    #4cc9f0;
-      --premium:  #c8f135;
-      --exclusive:#f1356e;
+      --muted:    #71717a;
+      --basic:    #60a5fa;
+      --premium:  #fbbf24;
+      --exclusive:#DC2626;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -221,7 +221,7 @@
 
     .tracks-table tr:last-child td { border-bottom: none; }
 
-    .tracks-table tr:hover td { background: rgba(200,241,53,0.04); }
+    .tracks-table tr:hover td { background: rgba(220,38,38,0.08); }
 
     .badge {
       display: inline-block;
@@ -232,8 +232,8 @@
       letter-spacing: 0.05em;
     }
 
-    .badge-sold     { background: rgba(241,53,110,0.15); color: var(--accent3); }
-    .badge-available { background: rgba(200,241,53,0.12); color: var(--accent); }
+    .badge-sold     { background: rgba(248,113,113,0.15); color: var(--accent3); }
+    .badge-available { background: rgba(220,38,38,0.12); color: var(--accent); }
 
     .rank {
       font-family: 'Syne', sans-serif;
@@ -289,7 +289,7 @@
 <body>
 
 <header>
-  <div class="logo">beat<span>stats</span></div>
+  <div class="logo">Track<span>4U</span></div>
   <div class="period-tabs">
     <button data-period="7d">7D</button>
     <button data-period="30d" class="active">30D</button>
@@ -360,17 +360,17 @@
   // ── Config ─────────────────────────────────────────────────────
   const API_BASE = "/api/v2/charts";
   const COLORS = {
-    accent:    "#c8f135",
-    accent2:   "#7b5ea7",
-    accent3:   "#f1356e",
-    basic:     "#4cc9f0",
-    premium:   "#c8f135",
-    exclusive: "#f1356e",
-    muted:     "#5a5a72",
+    accent:    "#DC2626",
+    accent2:   "#991b1b",
+    accent3:   "#f87171",
+    basic:     "#60a5fa",
+    premium:   "#fbbf24",
+    exclusive: "#DC2626",
+    muted:     "#71717a",
     border:    "#1e1e2e",
   };
 
-  Chart.defaults.color = "#5a5a72";
+  Chart.defaults.color = "#71717a";
   Chart.defaults.font.family = "'DM Mono', monospace";
   Chart.defaults.font.size = 11;
 
@@ -407,8 +407,8 @@
       const ctx = document.getElementById("salesChart").getContext("2d");
 
       const gradient = ctx.createLinearGradient(0, 0, 0, 280);
-      gradient.addColorStop(0, "rgba(200,241,53,0.25)");
-      gradient.addColorStop(1, "rgba(200,241,53,0)");
+      gradient.addColorStop(0, "rgba(220,38,38,0.25)");
+      gradient.addColorStop(1, "rgba(220,38,38,0)");
 
       const config = {
         type: "line",

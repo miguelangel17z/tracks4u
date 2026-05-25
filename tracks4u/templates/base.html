@@ -96,19 +96,22 @@
                     <a href="{% url 'track-create' %}" class="nav-link text-zinc-300 hover:text-red-600 font-medium">
                         {% trans "Upload Track" %}
                     </a>
+                    <a href="/charts/" class="nav-link text-zinc-300 hover:text-red-600 font-medium">
+                        {% trans "Analytics" %}
+                    </a>
                     <a href="{% url 'profile' %}" class="nav-link text-zinc-300 hover:text-red-600 font-medium">
                         {% trans "Profile" %}
                     </a>
-                        <form action="{% url 'set_language' %}" method="post" class="inline">
-        {% csrf_token %}
-        <input name="next" type="hidden" value="{{ request.path }}">
-        <select name="language" onchange="this.form.submit()" 
-                class="bg-zinc-800 text-white border border-zinc-700 rounded px-3 py-1 text-sm focus:outline-none">
-            {% get_current_language as LANGUAGE_CODE %}
-            <option value="es" {% if LANGUAGE_CODE == 'es' %}selected{% endif %}>🇪🇸 ES</option>
-            <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>🇬🇧 EN</option>
-        </select>
-    </form>
+                    <form action="{% url 'set_language' %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <input name="next" type="hidden" value="{{ request.path }}">
+                        <select name="language" onchange="this.form.submit()" 
+                                class="bg-zinc-800 text-white border border-zinc-700 rounded px-3 py-1 text-sm focus:outline-none">
+                            {% get_current_language as LANGUAGE_CODE %}
+                            <option value="es" {% if LANGUAGE_CODE == 'es' %}selected{% endif %}>🇪🇸 ES</option>
+                            <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>🇬🇧 EN</option>
+                        </select>
+                    </form>
                     <button onclick="logout()" class="text-zinc-400 hover:text-red-500 text-sm font-medium transition-colors">
                         {% trans "Logout" %}
                     </button>
@@ -133,7 +136,10 @@
                 <a href="{% url 'track-create' %}" class="block text-zinc-300 hover:text-red-600 font-medium">
                     {% trans "Upload Track" %}
                 </a>
-                <a href="{% url 'api-profile' %}" class="block text-zinc-300 hover:text-red-600 font-medium">
+                <a href="/charts/" class="block text-zinc-300 hover:text-red-600 font-medium">
+                    {% trans "Analytics" %}
+                </a>
+                <a href="{% url 'profile' %}" class="block text-zinc-300 hover:text-red-600 font-medium">
                     {% trans "Profile" %}
                 </a>
                 <button onclick="logout()" class="block w-full text-left text-zinc-400 hover:text-red-500 font-medium">

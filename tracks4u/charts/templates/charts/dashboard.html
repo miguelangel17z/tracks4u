@@ -1,8 +1,6 @@
 {% extends "base.html" %}
-{% load i18n %}
-{% load static %}
 
-{% block title %}{% trans "Analytics Dashboard" %} - Tracks4U{% endblock %}
+{% block title %}Analytics Dashboard - Tracks4U{% endblock %}
 
 {% block extra_styles %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -251,8 +249,8 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-            <h1 class="text-4xl font-bold text-white mb-2">{% trans "Analytics Dashboard" %}</h1>
-            <p class="text-zinc-400">{% trans "Track performance metrics and sales insights" %}</p>
+            <h1 class="text-4xl font-bold text-white mb-2">Analytics Dashboard</h1>
+            <p class="text-zinc-400">Track performance metrics and sales insights</p>
         </div>
         
         <!-- Period Selector -->
@@ -267,27 +265,27 @@
     <!-- KPI Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="kpi-grid">
         <div class="kpi-card">
-            <div class="kpi-label">{% trans "Total Sales" %}</div>
+            <div class="kpi-label">Total Sales</div>
             <div class="kpi-value" id="kpi-sales">—</div>
-            <div class="kpi-sub" id="kpi-period-label">{% trans "loading..." %}</div>
+            <div class="kpi-sub" id="kpi-period-label">loading...</div>
         </div>
         
         <div class="kpi-card">
-            <div class="kpi-label">{% trans "Revenue (USD)" %}</div>
+            <div class="kpi-label">Revenue (USD)</div>
             <div class="kpi-value" id="kpi-revenue">—</div>
-            <div class="kpi-sub">{% trans "selected period" %}</div>
+            <div class="kpi-sub">selected period</div>
         </div>
         
         <div class="kpi-card">
-            <div class="kpi-label">{% trans "Active Tracks" %}</div>
+            <div class="kpi-label">Active Tracks</div>
             <div class="kpi-value" id="kpi-tracks">—</div>
-            <div class="kpi-sub">{% trans "in catalog" %}</div>
+            <div class="kpi-sub">in catalog</div>
         </div>
         
         <div class="kpi-card">
-            <div class="kpi-label">{% trans "Top Track" %}</div>
+            <div class="kpi-label">Top Track</div>
             <div class="kpi-value" style="font-size: 1.25rem; padding-top: 0.5rem;" id="kpi-top-track">—</div>
-            <div class="kpi-sub">{% trans "best seller" %}</div>
+            <div class="kpi-sub">best seller</div>
         </div>
     </div>
 
@@ -298,8 +296,8 @@
         <div class="lg:col-span-2 chart-card">
             <div class="chart-header">
                 <div>
-                    <div class="chart-title">{% trans "Sales Over Time" %}</div>
-                    <div class="chart-subtitle">{% trans "Licenses sold per day" %}</div>
+                    <div class="chart-title">Sales Over Time</div>
+                    <div class="chart-subtitle">Licenses sold per day</div>
                 </div>
             </div>
             <div class="chart-container">
@@ -311,8 +309,8 @@
         <div class="chart-card">
             <div class="chart-header">
                 <div>
-                    <div class="chart-title">{% trans "Revenue by License" %}</div>
-                    <div class="chart-subtitle">{% trans "Distribution in USD" %}</div>
+                    <div class="chart-title">Revenue by License</div>
+                    <div class="chart-subtitle">Distribution in USD</div>
                 </div>
             </div>
             <div class="chart-container">
@@ -328,8 +326,8 @@
         <div class="chart-card">
             <div class="chart-header">
                 <div>
-                    <div class="chart-title">{% trans "Top Tracks" %}</div>
-                    <div class="chart-subtitle">{% trans "Ranked by sales" %}</div>
+                    <div class="chart-title">Top Tracks</div>
+                    <div class="chart-subtitle">Ranked by sales</div>
                 </div>
             </div>
             <div class="chart-container table" id="tracks-table-wrap"></div>
@@ -339,8 +337,8 @@
         <div class="chart-card">
             <div class="chart-header">
                 <div>
-                    <div class="chart-title">{% trans "Top Genres" %}</div>
-                    <div class="chart-subtitle">{% trans "Licenses per genre" %}</div>
+                    <div class="chart-title">Top Genres</div>
+                    <div class="chart-subtitle">Licenses per genre</div>
                 </div>
             </div>
             <div class="chart-container small">
@@ -397,7 +395,7 @@ async function loadSummary() {
         document.getElementById("kpi-revenue").textContent = `$${data.total_revenue_usd.toLocaleString()}`;
         document.getElementById("kpi-tracks").textContent = data.total_tracks;
         document.getElementById("kpi-top-track").textContent = data.top_track;
-        document.getElementById("kpi-period-label").textContent = `{% trans "last" %} ${currentPeriod}`;
+        document.getElementById("kpi-period-label").textContent = `last ${currentPeriod}`;
         document.getElementById("kpi-grid").classList.add("fade-in");
     } catch (error) {
         console.error("Summary error:", error);
@@ -421,7 +419,7 @@ async function loadSalesChart() {
             data: {
                 labels: data.labels,
                 datasets: [{
-                    label: "{% trans 'Sales' %}",
+                    label: "Sales",
                     data: data.values,
                     borderColor: COLORS.accent,
                     backgroundColor: gradient,
@@ -470,7 +468,7 @@ async function loadSalesChart() {
         }
     } catch (error) {
         document.getElementById("salesChart").parentElement.innerHTML =
-            `<div class="error-msg">{% trans "Could not load sales data" %}</div>`;
+            '<div class="error-msg">Could not load sales data</div>';
     }
 }
 
@@ -535,7 +533,7 @@ async function loadRevenueChart() {
         }
     } catch (error) {
         document.getElementById("revenueChart").parentElement.innerHTML =
-            `<div class="error-msg">{% trans "Could not load revenue data" %}</div>`;
+            '<div class="error-msg">Could not load revenue data</div>';
     }
 }
 
@@ -548,15 +546,15 @@ async function loadTopTracks() {
         const data = await apiFetch("/top-tracks/", { period: undefined });
 
         if (!data.tracks.length) {
-            wrap.innerHTML = `<div class="error-msg">{% trans "No data available yet" %}</div>`;
+            wrap.innerHTML = '<div class="error-msg">No data available yet</div>';
             return;
         }
 
         const rows = data.tracks.map((track, index) => {
             const rankClass = index < 3 ? `rank-${index + 1}` : "";
             const badge = track.is_sold
-                ? `<span class="track-badge badge-sold">{% trans "Sold" %}</span>`
-                : `<span class="track-badge badge-available">{% trans "Available" %}</span>`;
+                ? '<span class="track-badge badge-sold">Sold</span>'
+                : '<span class="track-badge badge-available">Available</span>';
             
             return `
                 <tr>
@@ -573,16 +571,16 @@ async function loadTopTracks() {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>{% trans "Track" %}</th>
-                        <th>{% trans "Genre" %}</th>
-                        <th>{% trans "Sales" %}</th>
-                        <th>{% trans "Status" %}</th>
+                        <th>Track</th>
+                        <th>Genre</th>
+                        <th>Sales</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
             </table>`;
     } catch (error) {
-        wrap.innerHTML = `<div class="error-msg">{% trans "Could not load tracks data" %}</div>`;
+        wrap.innerHTML = '<div class="error-msg">Could not load tracks data</div>';
     }
 }
 
@@ -604,7 +602,7 @@ async function loadGenresChart() {
             data: {
                 labels: data.labels,
                 datasets: [{
-                    label: "{% trans 'Licenses' %}",
+                    label: "Licenses",
                     data: data.values,
                     backgroundColor: data.labels.map((_, i) => palette[i % palette.length] + "dd"),
                     borderColor: data.labels.map((_, i) => palette[i % palette.length]),
@@ -645,7 +643,7 @@ async function loadGenresChart() {
         }
     } catch (error) {
         document.getElementById("genresChart").parentElement.innerHTML =
-            `<div class="error-msg">{% trans "Could not load genres data" %}</div>`;
+            '<div class="error-msg">Could not load genres data</div>';
     }
 }
 
