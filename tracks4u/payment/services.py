@@ -27,6 +27,13 @@ class LicenseService:
                     .para_license_type(data['license_type'])
                     .construir())
                 
+                track = data['track']
+                track.sales_count += 1
+                track.save()
+                
+                
+
+                
                 return licencia
         except ValueError as e:
             raise ValueError(f"Error al crear licencia: {str(e)}")
@@ -39,7 +46,7 @@ class LicenseService:
         return list(License.objects.filter(user=user).select_related('track'))
     
     
-
+    
     
    
         

@@ -26,8 +26,9 @@ class TrackNotificationService:
             )
             contexto = {
                 "title": track.title,
-                "price": track.price,
                 "bpm": track.bpm,
+                "genre": track.genre,
+                "sales_count": track.sales_count,
                 "created_at": track.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             }
             return notificador.enviar(

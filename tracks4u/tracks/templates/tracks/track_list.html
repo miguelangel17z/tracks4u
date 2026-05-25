@@ -27,7 +27,6 @@
             padding: 15px;
             flex: 1;
         }
-        .price { color: green; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -53,9 +52,9 @@
                 <source src="{{ track.audio_file.url }}" type="audio/ogg">
             </audio>
 
-            <p>BPM: {{ track.bpm }} | <span class="price">${{ track.price }}</span></p>
+            <p>BPM: {{ track.bpm }} 
             <p>Género: {{ track.genre }}</p>
-            <p>Stock: {{ track.stock }}</p>
+            <p>Sales_count: {{ track.sales_count }}</p>
             <p>Subido: {{ track.created_at|date:"d/m/Y H:i" }}</p>
 
             {% if track.is_sold %}
