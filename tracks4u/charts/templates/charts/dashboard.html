@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Charts — Beat Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:       #0a0a0f;
+      --surface:  #111118;
+      --border:   #1e1e2e;
+      --accent:   #c8f135;
+      --accent2:  #7b5ea7;
+      --accent3:  #f1356e;
+      --text:     #e8e8f0;
+      --muted:    #5a5a72;
+      --basic:    #4cc9f0;
+      --premium:  #c8f135;
+      --exclusive:#f1356e;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Top bar ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+    }
+
+    .logo span { color: var(--text); }
+
+    /* ── Period selector ── */
+    .period-tabs {
+      display: flex;
+      gap: 0.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.25rem;
+    }
+
+    .period-tabs button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .period-tabs button.active,
+    .period-tabs button:hover {
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 500;
+    }
+
+    /* ── Main layout ── */
+    main {
+      padding: 2rem 2.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ── KPI Cards ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .kpi-card:hover { border-color: var(--accent); }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--accent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .kpi-card:hover::before { opacity: 1; }
+
+    .kpi-label {
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .kpi-value {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 2rem;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .kpi-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+
+    /* ── Charts grid ── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+    }
+
+    .chart-card.full { grid-column: 1 / -1; }
+
+    .chart-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .chart-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .chart-subtitle {
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 220px;
+    }
+
+    .chart-wrap.tall { height: 280px; }
+
+    /* ── Top tracks table ── */
+    .tracks-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .tracks-table th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 400;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tracks-table td {
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .tracks-table tr:last-child td { border-bottom: none; }
+
+    .tracks-table tr:hover td { background: rgba(200,241,53,0.04); }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-sold     { background: rgba(241,53,110,0.15); color: var(--accent3); }
+    .badge-available { background: rgba(200,241,53,0.12); color: var(--accent); }
+
+    .rank {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .rank-1 { color: var(--accent); }
+    .rank-2 { color: var(--text); }
+    .rank-3 { color: var(--accent2); }
+
+    /* ── Loading skeleton ── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--border) 25%, var(--surface) 50%, var(--border) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 4px;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── Fade-in ── */
+    .fade-in {
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Error state ── */
+    .error-msg {
+      font-size: 0.75rem;
+      color: var(--accent3);
+      text-align: center;
+      padding: 2rem;
+    }
+
+    @media (max-width: 900px) {
+      .kpi-grid        { grid-template-columns: repeat(2, 1fr); }
+      .charts-grid     { grid-template-columns: 1fr; }
+      .charts-row      { grid-template-columns: 1fr; }
+      header           { padding: 1rem 1.25rem; }
+      main             { padding: 1rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">beat<span>stats</span></div>
+  <div class="period-tabs">
+    <button data-period="7d">7D</button>
+    <button data-period="30d" class="active">30D</button>
+    <button data-period="90d">90D</button>
+    <button data-period="1y">1Y</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi-card"><div class="kpi-label">Ventas totales</div><div class="kpi-value" id="kpi-sales">—</div><div class="kpi-sub" id="kpi-period-label">cargando...</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ingresos (USD)</div><div class="kpi-value" id="kpi-revenue">—</div><div class="kpi-sub">período seleccionado</div></div>
+    <div class="kpi-card"><div class="kpi-label">Tracks activos</div><div class="kpi-value" id="kpi-tracks">—</div><div class="kpi-sub">en catálogo</div></div>
+    <div class="kpi-card"><div class="kpi-label">Track #1</div><div class="kpi-value" style="font-size:1rem;padding-top:0.4rem" id="kpi-top-track">—</div><div class="kpi-sub">más vendido</div></div>
+  </div>
+
+  <!-- Sales line + Revenue donut -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Ventas por período</div>
+          <div class="chart-subtitle">Licencias vendidas por día</div>
+        </div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="salesChart"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Ingresos por licencia</div>
+          <div class="chart-subtitle">Distribución en USD</div>
+        </div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="revenueChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Top tracks table + Genres bar -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Top tracks</div>
+          <div class="chart-subtitle">Ordenados por ventas</div>
+        </div>
+      </div>
+      <div id="tracks-table-wrap"></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Géneros más vendidos</div>
+          <div class="chart-subtitle">Licencias por género</div>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="genresChart"></canvas></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // ── Config ─────────────────────────────────────────────────────
+  const API_BASE = "/api/v2/charts";
+  const COLORS = {
+    accent:    "#c8f135",
+    accent2:   "#7b5ea7",
+    accent3:   "#f1356e",
+    basic:     "#4cc9f0",
+    premium:   "#c8f135",
+    exclusive: "#f1356e",
+    muted:     "#5a5a72",
+    border:    "#1e1e2e",
+  };
+
+  Chart.defaults.color = "#5a5a72";
+  Chart.defaults.font.family = "'DM Mono', monospace";
+  Chart.defaults.font.size = 11;
+
+  let currentPeriod = "30d";
+  let salesChartInst, revenueChartInst, genresChartInst;
+
+  // ── Fetch helper ────────────────────────────────────────────────
+  async function apiFetch(path, params = {}) {
+    const qs = new URLSearchParams({ period: currentPeriod, ...params });
+    const res = await fetch(`${API_BASE}${path}?${qs}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  // ── KPI cards ───────────────────────────────────────────────────
+  async function loadSummary() {
+    try {
+      const d = await apiFetch("/summary/");
+      document.getElementById("kpi-sales").textContent = d.total_sales;
+      document.getElementById("kpi-revenue").textContent = `$${d.total_revenue_usd.toLocaleString()}`;
+      document.getElementById("kpi-tracks").textContent = d.total_tracks;
+      document.getElementById("kpi-top-track").textContent = d.top_track;
+      document.getElementById("kpi-period-label").textContent = `últimos ${currentPeriod}`;
+      document.getElementById("kpi-grid").classList.add("fade-in");
+    } catch (e) {
+      console.error("summary error", e);
+    }
+  }
+
+  // ── Sales line chart ────────────────────────────────────────────
+  async function loadSalesChart() {
+    try {
+      const d = await apiFetch("/sales/");
+      const ctx = document.getElementById("salesChart").getContext("2d");
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+      gradient.addColorStop(0, "rgba(200,241,53,0.25)");
+      gradient.addColorStop(1, "rgba(200,241,53,0)");
+
+      const config = {
+        type: "line",
+        data: {
+          labels: d.labels,
+          datasets: [{
+            label: "Ventas",
+            data: d.values,
+            borderColor: COLORS.accent,
+            backgroundColor: gradient,
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: COLORS.accent,
+            tension: 0.4,
+            fill: true,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: {
+              grid: { color: COLORS.border },
+              ticks: { maxTicksLimit: 7 }
+            },
+            y: {
+              grid: { color: COLORS.border },
+              beginAtZero: true,
+              ticks: { stepSize: 1 }
+            }
+          }
+        }
+      };
+
+      if (salesChartInst) {
+        salesChartInst.data = config.data;
+        salesChartInst.update();
+      } else {
+        salesChartInst = new Chart(ctx, config);
+      }
+    } catch (e) {
+      document.getElementById("salesChart").parentElement.innerHTML =
+        `<div class="error-msg">No se pudieron cargar las ventas</div>`;
+    }
+  }
+
+  // ── Revenue donut ───────────────────────────────────────────────
+  async function loadRevenueChart() {
+    try {
+      const d = await apiFetch("/revenue/");
+      const ctx = document.getElementById("revenueChart").getContext("2d");
+
+      const colorMap = {
+        basic: COLORS.basic,
+        premium: COLORS.premium,
+        exclusive: COLORS.exclusive,
+      };
+      const colors = d.labels.map(l => colorMap[l] || COLORS.muted);
+
+      const config = {
+        type: "doughnut",
+        data: {
+          labels: d.labels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+          datasets: [{
+            data: d.values,
+            backgroundColor: colors.map(c => c + "cc"),
+            borderColor: colors,
+            borderWidth: 2,
+            hoverOffset: 8,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "68%",
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { padding: 16, usePointStyle: true, pointStyleWidth: 8 }
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` $${ctx.parsed.toLocaleString()} USD`
+              }
+            }
+          }
+        }
+      };
+
+      if (revenueChartInst) {
+        revenueChartInst.data = config.data;
+        revenueChartInst.update();
+      } else {
+        revenueChartInst = new Chart(ctx, config);
+      }
+    } catch (e) {
+      document.getElementById("revenueChart").parentElement.innerHTML =
+        `<div class="error-msg">No se pudieron cargar los ingresos</div>`;
+    }
+  }
+
+  // ── Top tracks table ────────────────────────────────────────────
+  async function loadTopTracks() {
+    const wrap = document.getElementById("tracks-table-wrap");
+    try {
+      const d = await apiFetch("/top-tracks/", { period: undefined });
+
+      if (!d.tracks.length) {
+        wrap.innerHTML = `<div class="error-msg">Sin datos aún</div>`;
+        return;
+      }
+
+      const rows = d.tracks.map((t, i) => {
+        const rankClass = i < 3 ? `rank-${i+1}` : "";
+        const badge = t.is_sold
+          ? `<span class="badge badge-sold">vendido</span>`
+          : `<span class="badge badge-available">disponible</span>`;
+        return `
+          <tr>
+            <td><span class="rank ${rankClass}">#${i+1}</span></td>
+            <td>${t.title}</td>
+            <td>${t.genre}</td>
+            <td style="color:var(--accent);font-weight:500">${t.sales_count}</td>
+            <td>${badge}</td>
+          </tr>`;
+      }).join("");
+
+      wrap.innerHTML = `
+        <table class="tracks-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Track</th><th>Género</th><th>Ventas</th><th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    } catch (e) {
+      wrap.innerHTML = `<div class="error-msg">No se pudieron cargar los tracks</div>`;
+    }
+  }
+
+  // ── Genres bar chart ────────────────────────────────────────────
+  async function loadGenresChart() {
+    try {
+      const d = await apiFetch("/top-genres/");
+      const ctx = document.getElementById("genresChart").getContext("2d");
+
+      const palette = [
+        COLORS.accent, COLORS.accent2, COLORS.accent3, COLORS.basic,
+        "#f7b731", "#a29bfe", "#fd79a8", "#00cec9"
+      ];
+
+      const config = {
+        type: "bar",
+        data: {
+          labels: d.labels,
+          datasets: [{
+            label: "Licencias",
+            data: d.values,
+            backgroundColor: d.labels.map((_, i) => palette[i % palette.length] + "bb"),
+            borderColor:     d.labels.map((_, i) => palette[i % palette.length]),
+            borderWidth: 1,
+            borderRadius: 4,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: "y",
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: COLORS.border }, beginAtZero: true, ticks: { stepSize: 1 } },
+            y: { grid: { display: false } }
+          }
+        }
+      };
+
+      if (genresChartInst) {
+        genresChartInst.data = config.data;
+        genresChartInst.update();
+      } else {
+        genresChartInst = new Chart(ctx, config);
+      }
+    } catch (e) {
+      document.getElementById("genresChart").parentElement.innerHTML =
+        `<div class="error-msg">No se pudieron cargar los géneros</div>`;
+    }
+  }
+
+  // ── Load all ────────────────────────────────────────────────────
+  function loadAll() {
+    loadSummary();
+    loadSalesChart();
+    loadRevenueChart();
+    loadTopTracks();
+    loadGenresChart();
+  }
+
+  // ── Period selector ─────────────────────────────────────────────
+  document.querySelectorAll(".period-tabs button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".period-tabs button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentPeriod = btn.dataset.period;
+      loadAll();
+    });
+  });
+
+  // ── Init ────────────────────────────────────────────────────────
+  loadAll();
+</script>
+</body>
+</html>

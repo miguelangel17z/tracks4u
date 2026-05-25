@@ -16,6 +16,15 @@ services:
     expose:
       - "5000"
 
+  flask_charts:
+    build: ./flask_charts
+    volumes:
+      - ./flask_charts:/app
+    expose:
+      - "5001"
+    depends_on:
+      - django-web
+
   nginx:
     image: nginx:alpine
     ports:
@@ -25,3 +34,4 @@ services:
     depends_on:
       - django-web
       - flask_licensing
+      - flask_charts
