@@ -10,7 +10,6 @@ class TrackSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "audio_file",
-            "price",
             "bpm",
             "created_at",
             "cover_image",

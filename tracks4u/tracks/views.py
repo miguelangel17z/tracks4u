@@ -12,7 +12,7 @@ def home(request):
 
 class TrackCreateView(CreateView):
     model = Track
-    fields = ["title", "audio_file", "cover_image", "price", "bpm", "genre"]
+    fields = ["title", "audio_file", "cover_image", "bpm", "genre"]
     template_name = "tracks/track_form.html"
     success_url = reverse_lazy("track-list")
 
