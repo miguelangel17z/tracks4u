@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/tracks/', include('tracks.api.urls')),
     path('users/', include('users.urls')),
     path('payment/', include('payment.urls')),
+    path('internal/charts/', include('charts.urls')),
 
 ]
 
