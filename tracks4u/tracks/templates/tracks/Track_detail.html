@@ -48,56 +48,69 @@
     <option value="COP">COP</option>
     <option value="USD">USD</option>
     <option value="EUR">EUR</option>
+    <option value="GBP">GBP</option>
+    <option value="JPY">JPY</option>
+    <option value="CHF">CHF</option>
+    <option value="CAD">CAD</option>
+    <option value="AUD">AUD</option>
+    <option value="CNY">CNY</option>
+    <option value="SGD">SGD</option>
+    <option value="MXN">MXN</option>
+    <option value="BRL">BRL</option>
+
 </select>
 <br><br>
 
 <button onclick="comprar()">Comprar</button>
 
 <script>
-    const TRACK_ID = {{ track.pk }};
-    const USER_ID = 1; // temporal hasta conectar JWT
+
+const TRACK_ID = parseInt("{{ track.pk }}"); 
+    let token = null;
 
     window.addEventListener('load', function() {
-        const token = localStorage.getItem('token');
+        token = localStorage.getItem('token');
+
         if (!token) {
             window.location.href = '/users/login/';
         }
     });
 
     async function comprar() {
-        const license_type = document.getElementById('license_type').value;
-        const currency     = document.getElementById('currency').value;
+    const license_type = document.getElementById('license_type').value;
+    const currency     = document.getElementById('currency').value;
 
-        const res = await fetch('/api/v2/licensing/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                track_id:     TRACK_ID,
-                user_id:      USER_ID,
-                license_type: license_type,
-                currency:     currency,
-            }),
-        });
+    const res = await fetch('/api/v2/licensing/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            track_id: TRACK_ID,
+            license_type: license_type,
+            currency: currency,
+        }),
+    });
 
-        const data = await res.json();
+    const data = await res.json();
 
-        if (res.status === 201) {
-            const precio_key = `precio_${currency.toLowerCase()}`;
-            mostrarMensaje(
-                `✓ Licencia ${data.license_type} comprada | ${data[precio_key]} ${currency} | Recibo: ${data.recibo_id}`,
-                'green'
-            );
-        } else {
-            mostrarMensaje('Error: ' + (data.error || JSON.stringify(data)), 'red');
-        }
+    if (res.status === 201) {
+        const precio_key = `precio_${currency.toLowerCase()}`;
+        mostrarMensaje(
+            `✓ Licencia ${data.license_type} comprada | ${data[precio_key]} ${currency} | Recibo: ${data.recibo_id}`,
+            'green'
+        );
+    } else {
+        mostrarMensaje('Error: ' + (data.error || JSON.stringify(data)), 'red');
     }
-
-    function mostrarMensaje(texto, color) {
-        const el = document.getElementById('mensaje');
-        el.textContent = texto;
-        el.style.color = color;
-        el.style.display = 'block';
-    }
+}
+function mostrarMensaje(texto, color) {
+    const el = document.getElementById('mensaje');
+    el.textContent = texto;
+    el.style.color = color;
+    el.style.display = 'block';
+}
 </script>
 
 </body>

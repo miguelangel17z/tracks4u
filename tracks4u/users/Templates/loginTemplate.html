@@ -43,11 +43,11 @@
             const data = await response.json();
 
             if (response.ok) {
-             localStorage.setItem('token', data.token); // guardar el token
+             localStorage.setItem('token', data.access); // guardar el token
             window.location.href = '/tracks/';  // redirigir a profile
 
                 document.getElementById('mensaje').textContent = 'Login exitoso';
-                console.log('Token:', data.token); // si usas tokens
+                console.log('Token:', data.access); // si usas tokens
             } else {
                 document.getElementById('mensaje').textContent = 'Error: ' + JSON.stringify(data);
             }

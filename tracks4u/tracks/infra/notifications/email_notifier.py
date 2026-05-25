@@ -24,7 +24,6 @@ Hola Admin,
 Se ha subido un nuevo track al sistema:
 
 Título: {title}
-Precio: ${price}
 BPM: {bpm}
 Fecha: {created_at}
 Género: {genre}
@@ -43,7 +42,6 @@ Sistema Tracks4U
 Tu track "{title}" ha sido vendido.
 
 Comprador: {buyer_username}
-Precio: ${price}
 Fecha: {purchase_date}
 
 Saludos,

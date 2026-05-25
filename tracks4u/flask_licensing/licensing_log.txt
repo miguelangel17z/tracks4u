@@ -27,3 +27,53 @@
 [2026-05-25 08:48:10.290558] basic | Track:3 User:1 | 9.99 USD | django_ok:True
 [2026-05-25 08:48:17.027419] basic | Track:3 User:1 | 9.99 USD | django_ok:False
 [2026-05-25 15:28:13.524444] basic | Track:4 User:1 | 9.99 USD | django_ok:True
+[2026-05-25 15:52:04.978626] basic | Track:3 User:1 | 36922.8 COP | django_ok:False
+[2026-05-25 15:52:13.107899] basic | Track:1 User:1 | 36922.8 COP | django_ok:False
+[2026-05-25 15:53:31.709743] basic | Track:4 User:1 | 36922.8 COP | django_ok:False
+[2026-05-25 15:54:08.186397] premium | Track:4 User:1 | 110842.31 COP | django_ok:False
+[2026-05-25 15:54:13.592968] basic | Track:3 User:1 | 36922.8 COP | django_ok:False
+[2026-05-25 16:01:37.809614] basic | Track:4 User:1 | 36922.8 COP | django_ok:False
+[2026-05-25 16:27:25.259562] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:27:37.745866] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:28:16.171068] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:28:18.870588] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:28:18.993426] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:28:19.168498] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:33:08.310645] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:33:12.837111] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:35:17.433288] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:35:18.399687] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:35:18.661992] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:35:18.796994] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:35:18.992020] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:35:19.106416] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:35:19.324205] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:35:19.411503] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:35:19.543222] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:36:55.559966] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:36:58.473889] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:40:43.433965] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:43:19.509081] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:43:24.197987] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:43:24.410819] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:43:24.515023] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:43:24.779493] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:44:29.805253] basic | Track:4 | 36922.8 COP | django_ok:False
+[2026-05-25 16:45:04.935509] basic | Track:3 | 36922.8 COP | django_ok:True
+[2026-05-25 16:45:05.799862] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:45:06.002946] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:45:06.133320] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:45:06.369458] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:46:41.370270] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:49:37.206784] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:51:04.184785] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:53:11.378043] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:53:14.749751] basic | Track:3 | 36922.8 COP | django_ok:False
+[2026-05-25 16:58:32.194549] basic | Track:1 | 36922.8 COP | django_ok:True
+[2026-05-25 17:00:20.988868] basic | Track:4 | 36922.8 COP | django_ok:True
+[2026-05-25 17:01:58.050317] exclusive | Track:1 | 369560.62 COP | django_ok:False
+[2026-05-25 17:02:06.718816] exclusive | Track:3 | 369560.62 COP | django_ok:False
+[2026-05-25 17:03:28.950080] premium | Track:4 | 110842.31 COP | django_ok:True
+[2026-05-25 17:03:57.466931] exclusive | Track:3 | 85.98 EUR | django_ok:True
+[2026-05-25 17:10:27.365492] exclusive | Track:1 | 1727.79 MXN | django_ok:True
+[2026-05-25 17:53:06.429671] premium | Track:1 | 25.79 EUR | django_ok:True
