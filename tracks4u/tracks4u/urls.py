@@ -30,6 +30,8 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('payment/', include('payment.urls')),
     path('internal/charts/', include('charts.urls')),
+    path("api/sistema/", include("sistema_client.urls")),
+    path('i18n/', include('django.conf.urls.i18n')),
 
 ]
 

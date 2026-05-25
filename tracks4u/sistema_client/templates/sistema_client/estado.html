@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Estado del Sistema | Tracks4U{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .card {
+        background: rgba(39, 39, 42, 0.6);
+        border: 1px solid rgba(63, 63, 70, 0.6);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(220, 38, 38, 0.4);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    .status-ok {
+        color: #22c55e;
+    }
+
+    .status-error {
+        color: #ef4444;
+    }
+
+    .spinner {
+        border: 3px solid rgba(255,255,255,0.1);
+        border-top: 3px solid #dc2626;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-10">
+
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white">
+            📡 {% trans "Estado del Sistema" %}
+        </h1>
+        <p class="text-zinc-400 mt-2">
+            Monitoreo en tiempo real del servicio externo.
+        </p>
+    </div>
+
+    <!-- Loader -->
+    <div id="loading" class="flex items-center gap-3 text-zinc-400">
+        <div class="spinner"></div>
+        <span>{% trans "Cargando estado del sistema..." %}</span>
+    </div>
+
+    <!-- Error -->
+    <div id="error" class="hidden card mt-6">
+        <p class="status-error font-semibold">⚠ Error al consultar el sistema</p>
+        <p class="text-zinc-400 mt-2" id="error-message"></p>
+    </div>
+
+    <!-- Content -->
+    <div id="content" class="hidden space-y-6 mt-6">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="card">
+                <h2 class="text-zinc-300 font-semibold mb-2">Estado general</h2>
+                <p id="estado-general" class="text-xl font-bold">-</p>
+            </div>
+
+            <div class="card">
+                <h2 class="text-zinc-300 font-semibold mb-2">Servicios activos</h2>
+                <p id="servicios" class="text-xl font-bold">-</p>
+            </div>
+
+            <div class="card">
+                <h2 class="text-zinc-300 font-semibold mb-2">Última actualización</h2>
+                <p id="timestamp" class="text-sm text-zinc-400">-</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="card">
+                <h2 class="text-zinc-300 font-semibold mb-2">Sistema</h2>
+                <p id="sistema" class="text-xl font-bold">-</p>
+            </div>
+            <div class="card">
+                <h2 class="text-zinc-300 font-semibold mb-2">Reseñas</h2>
+                <p id="resenas-total" class="text-xl font-bold">-</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="card">
+                <h2 class="text-zinc-300 font-semibold mb-2">Usuarios</h2>
+                <p class="text-zinc-200"><strong>Total:</strong> <span id="usuarios-total">-</span></p>
+                <p class="text-zinc-200"><strong>Dueños:</strong> <span id="usuarios-duenos">-</span></p>
+                <p class="text-zinc-200"><strong>Cuidadores:</strong> <span id="usuarios-cuidadores">-</span></p>
+            </div>
+            <div class="card">
+                <h2 class="text-zinc-300 font-semibold mb-2">Solicitudes</h2>
+                <p class="text-zinc-200"><strong>Total:</strong> <span id="solicitudes-total">-</span></p>
+                <p class="text-zinc-200"><strong>Completadas:</strong> <span id="solicitudes-completadas">-</span></p>
+                <p class="text-zinc-200"><strong>Pendientes:</strong> <span id="solicitudes-pendientes">-</span></p>
+                <p class="text-zinc-200"><strong>Último mes:</strong> <span id="solicitudes-ultimo_mes">-</span></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="text-zinc-300 font-semibold mb-2">JSON completo</h2>
+            <pre id="json-raw" class="whitespace-pre-wrap text-sm text-zinc-300 bg-zinc-900 p-4 rounded-lg overflow-x-auto" style="max-height: 420px;"></pre>
+        </div>
+    </div>
+
+    <!-- Refresh button -->
+    <div class="mt-10">
+        <button onclick="fetchEstado()"
+                class="btn-primary bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-medium">
+            🔄 {% trans "Actualizar" %}
+        </button>
+    </div>
+
+</div>
+
+<script>
+    async function fetchEstado() {
+        const loading = document.getElementById("loading");
+        const content = document.getElementById("content");
+        const error = document.getElementById("error");
+
+        loading.classList.remove("hidden");
+        content.classList.add("hidden");
+        error.classList.add("hidden");
+
+        try {
+            const res = await fetch("/api/sistema/estado/api/");
+            const data = await res.json();
+
+            loading.classList.add("hidden");
+
+            if (data.error) {
+                document.getElementById("error-message").innerText = data.message;
+                error.classList.remove("hidden");
+                return;
+            }
+
+            // Mapeo actualizado con los campos reales de la API
+            document.getElementById("estado-general").innerText =
+                data.estado ?? data.sistema ?? "Desconocido";
+
+            document.getElementById("servicios").innerText =
+                data.solicitudes?.total ?? data.usuarios?.total ?? "N/A";
+
+            document.getElementById("timestamp").innerText =
+                data.timestamp ?? new Date().toLocaleString();
+
+            document.getElementById("sistema").innerText =
+                data.sistema ?? "-";
+
+            document.getElementById("resenas-total").innerText =
+                data["reseñas"]?.total ?? data.resenas?.total ?? "-";
+
+            document.getElementById("usuarios-total").innerText =
+                data.usuarios?.total ?? "-";
+            document.getElementById("usuarios-duenos").innerText =
+                data.usuarios?.["dueños"] ?? data.usuarios?.duenos ?? "-";
+            document.getElementById("usuarios-cuidadores").innerText =
+                data.usuarios?.cuidadores ?? "-";
+
+            document.getElementById("solicitudes-total").innerText =
+                data.solicitudes?.total ?? "-";
+            document.getElementById("solicitudes-completadas").innerText =
+                data.solicitudes?.completadas ?? "-";
+            document.getElementById("solicitudes-pendientes").innerText =
+                data.solicitudes?.pendientes ?? "-";
+            document.getElementById("solicitudes-ultimo_mes").innerText =
+                data.solicitudes?.ultimo_mes ?? "-";
+
+            document.getElementById("json-raw").innerText =
+                JSON.stringify(data, null, 2);
+
+            content.classList.remove("hidden");
+
+        } catch (err) {
+            loading.classList.add("hidden");
+            document.getElementById("error-message").innerText = err.message;
+            error.classList.remove("hidden");
+        }
+    }
+
+    // auto load
+    fetchEstado();
+</script>
+{% endblock %}

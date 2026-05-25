@@ -36,3 +36,6 @@
 [2026-05-25 18:23:41.000880] exclusive | Track:2 | 369560.62 COP | django_ok:True
 [2026-05-25 18:24:36.481040] premium | Track:1 | 110842.31 COP | django_ok:True
 [2026-05-25 19:55:58.122986] basic | Track:2 | 36922.8 COP | django_ok:True
+[2026-05-25 22:41:01.485014] premium | Track:3 | 110842.31 COP | django_ok:True
+[2026-05-25 22:47:38.172771] basic | Track:5 | 36922.8 COP | django_ok:True
+[2026-05-25 22:56:40.919087] premium | Track:6 | 110842.31 COP | django_ok:True

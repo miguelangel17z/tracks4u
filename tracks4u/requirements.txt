@@ -3,3 +3,6 @@ djangorestframework
 djangorestframework-simplejwt
 pillow
 python-dotenv
+requests
+celery
+redis

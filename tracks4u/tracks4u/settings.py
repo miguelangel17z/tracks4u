@@ -48,9 +48,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tracks','payment', 'users',
-    'rest_framework',
-  
+    'rest_framework', 'charts', 'sistema_client', 
 ]
+
 AUTH_USER_MODEL = 'users.User'
 
 
@@ -76,7 +76,8 @@ LOGIN_URL = '/users/login/'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  
+        'DIRS': [BASE_DIR / 'templates'],
+
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -133,6 +134,18 @@ TIME_ZONE = 'UTC'
 
 USE_TZ = True
 
+# Redis como broker y backend de resultados
+CELERY_BROKER_URL        = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND    = "redis://redis:6379/0"
+ 
+# Serialización
+CELERY_TASK_SERIALIZER   = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_ACCEPT_CONTENT    = ["json"]
+ 
+# Timezone
+CELERY_TIMEZONE          = "America/Bogota"
+CELERY_ENABLE_UTC        = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
@@ -163,3 +176,7 @@ ADMIN_EMAIL = 'dainishikado@gmail.com'  # Email del superuser para notificacione
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+

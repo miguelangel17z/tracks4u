@@ -27,7 +27,7 @@ Título: {title}
 BPM: {bpm}
 Fecha: {created_at}
 Género: {genre}
-Stock: {stock}
+
     
 
 Saludos,
