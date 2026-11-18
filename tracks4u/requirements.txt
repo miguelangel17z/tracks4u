@@ -6,3 +6,9 @@ python-dotenv
 requests
 celery
 redis
+psycopg[binary]
+django-storages[s3]
+boto3
+mutagen
+moto[s3]
+pglast

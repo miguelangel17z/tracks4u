@@ -4,8 +4,14 @@ services:
 
   django-web:
     build: .
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - .env
     volumes:
       - .:/app
+      - ../database:/database:ro
     expose:
       - "8000"
     depends_on:
@@ -15,12 +21,16 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - DJANGO_SETTINGS_MODULE=tracks4u.settings
+      - SCHEMA_SQL_PATH=/database/schema.sql
 
   celery-worker:
     build: .
     command: celery -A tracks4u worker --loglevel=info
+    env_file:
+      - .env
     volumes:
       - .:/app
+      - ../database:/database:ro
     depends_on:
       - redis
       - django-web
@@ -29,6 +39,7 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - DJANGO_SETTINGS_MODULE=tracks4u.settings
+      - SCHEMA_SQL_PATH=/database/schema.sql
 
   redis:
     image: redis:7-alpine
