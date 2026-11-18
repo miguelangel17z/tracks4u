@@ -42,9 +42,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "tracks",
-    "payment",
+    "core",
     "users",
+    "tracks",
+    "playlists",
+    "payment",
     "rest_framework",
     "charts",
     "sistema_client",
@@ -116,6 +118,7 @@ DATABASES = {
         "CONN_MAX_AGE": 60,
         "OPTIONS": {
             "sslmode": os.environ.get("DB_SSLMODE", "require"),
+            "connect_timeout": int(os.environ.get("DB_CONNECT_TIMEOUT", "5")),
         },
     }
 }
