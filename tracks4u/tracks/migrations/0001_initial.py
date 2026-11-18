@@ -2,6 +2,7 @@ import django.contrib.postgres.fields
 from django.db import migrations, models
 
 import core.uploads
+import core.validators
 
 
 class Migration(migrations.Migration):
@@ -97,6 +98,7 @@ class Migration(migrations.Migration):
                         max_length=255,
                         null=True,
                         upload_to=core.uploads.track_audio_path,
+                        validators=[core.validators.validate_audio_file],
                     ),
                 ),
                 (
@@ -106,6 +108,7 @@ class Migration(migrations.Migration):
                         max_length=255,
                         null=True,
                         upload_to=core.uploads.track_cover_path,
+                        validators=[core.validators.validate_image_file],
                     ),
                 ),
                 ("duration_sec", models.IntegerField(blank=True, null=True)),

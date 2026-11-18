@@ -2,6 +2,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from core.uploads import playlist_cover_path
+from core.validators import validate_image_file
 
 
 class Playlist(models.Model):
@@ -20,6 +21,7 @@ class Playlist(models.Model):
         max_length=255,
         null=True,
         blank=True,
+        validators=[validate_image_file],
     )
     is_public = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

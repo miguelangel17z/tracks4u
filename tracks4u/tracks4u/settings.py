@@ -11,10 +11,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
 
-# Configuración temporal de archivos media (se reemplaza por S3 en T5)
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
 DEBUG = os.environ.get("DEBUG", "false").lower() == "true"
 if DEBUG:
     SECRET_KEY = os.environ.get(
@@ -180,10 +176,25 @@ TELEMETRY_SETTLE_SECONDS = int(os.environ.get("TELEMETRY_SETTLE_SECONDS", "5"))
 TELEMETRY_RETENTION_DAYS = int(os.environ.get("TELEMETRY_RETENTION_DAYS", "7"))
 TELEMETRY_DRAIN_MAX_LIMIT = int(os.environ.get("TELEMETRY_DRAIN_MAX_LIMIT", "1000"))
 
-# Static files
+# Static files & S3 Media Storage
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+STORAGES = {
+    "default": {"BACKEND": "storages.backends.s3.S3Storage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME", "us-east-1")
+AWS_QUERYSTRING_AUTH = True
+AWS_QUERYSTRING_EXPIRE = 3600
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+if os.environ.get("AWS_ACCESS_KEY_ID", "").strip():
+    AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"].strip()
+if os.environ.get("AWS_SECRET_ACCESS_KEY", "").strip():
+    AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"].strip()
 
 # Notificaciones
 NOTIFICATION_MODE = os.environ.get("NOTIFICATION_MODE", "MOCK")

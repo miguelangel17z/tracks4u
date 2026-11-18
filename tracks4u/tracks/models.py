@@ -2,6 +2,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from core.uploads import track_audio_path, track_cover_path
+from core.validators import validate_audio_file, validate_image_file
 
 
 class Genre(models.Model):
@@ -104,12 +105,14 @@ class Track(models.Model):
         max_length=255,
         null=True,
         blank=True,
+        validators=[validate_audio_file],
     )
     cover_image = models.ImageField(
         upload_to=track_cover_path,
         max_length=255,
         null=True,
         blank=True,
+        validators=[validate_image_file],
     )
     duration_sec = models.IntegerField(null=True, blank=True)
     genres = models.ManyToManyField(

@@ -2,6 +2,7 @@ import django.contrib.postgres.fields
 from django.db import migrations, models
 
 import core.uploads
+import core.validators
 
 
 class Migration(migrations.Migration):
@@ -35,6 +36,7 @@ class Migration(migrations.Migration):
                         max_length=255,
                         null=True,
                         upload_to=core.uploads.playlist_cover_path,
+                        validators=[core.validators.validate_image_file],
                     ),
                 ),
                 ("is_public", models.BooleanField(default=False)),
