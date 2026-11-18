@@ -50,9 +50,31 @@ flowchart LR
 
 ---
 
-## 2. Despliegue Paso a Paso en la EC2 de Django (Conexión a RDS y S3)
+## 2. Despliegue Paso a Paso en la EC2 de Tracks4U (`i-09a7a5a131a32bd0e`)
 
-> **Requisito de red:** El RDS (`tracks4u-postgres-dev.c4qkjciamuny.us-east-1.rds.amazonaws.com:5432`) está en una subred privada, por lo que todos los comandos de base de datos y de Django deben ejecutarse **desde una instancia EC2 dentro de la misma VPC**.
+> **Datos de la instancia EC2 en `us-east-1`:**
+> - **Instance ID:** `i-09a7a5a131a32bd0e` (`ubuntu@ip-10-0-21-126`, IP privada `10.0.21.126`, IP pública `54.92.130.85`)
+> - **Security Group:** `sg-003aae4d93d98bfc0` (`tracks4u-app-sg`)
+> - **IAM Profile asociado:** `LabInstanceProfile` (`LabRole`, con permisos `s3:ListBucket` y `s3:PutObject` verificados sobre `s3://tracks4u-datalake-463790652932-us-east-1/`)
+> - **Requisito de red:** El RDS (`tracks4u-postgres-dev.c4qkjciamuny.us-east-1.rds.amazonaws.com:5432`) está en una subred privada, por lo que todos los comandos de base de datos y de Django deben ejecutarse **desde la instancia EC2 dentro de la VPC**.
+
+### 2.0 Recuperar acceso SSH desde AWS CloudShell (si cambió la IP de CloudShell)
+Cuando AWS CloudShell se reinicia, su IP pública saliente cambia y el Security Group `sg-003aae4d93d98bfc0` bloquea el puerto 22. Para autorizar automáticamente la IP actual de CloudShell y entrar por SSH a la EC2, ejecuta en **AWS CloudShell**:
+
+```bash
+# 1. Autorizar la IP pública actual de CloudShell en el puerto 22 del Security Group
+MY_IP=$(curl -s https://checkip.amazonaws.com | tr -d '\n')
+aws ec2 authorize-security-group-ingress \
+  --region us-east-1 \
+  --group-id sg-003aae4d93d98bfc0 \
+  --protocol tcp \
+  --port 22 \
+  --cidr "${MY_IP}/32" 2>/dev/null || true
+
+# 2. Entrar a la EC2
+aws ec2-instance-connect ssh --region us-east-1 \
+  --instance-id i-09a7a5a131a32bd0e --os-user ubuntu --connection-type direct
+```
 
 ### 2.1 Clonar el repositorio e instalar dependencias
 En la instancia EC2 donde correrá Django:

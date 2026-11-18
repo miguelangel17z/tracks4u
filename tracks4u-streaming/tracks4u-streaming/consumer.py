@@ -19,7 +19,7 @@ s3 = None
 if BUCKET:
     import boto3
 
-    s3 = boto3.client("s3", region_name=REGION)  # en EC2 usa el IAM Role, no hace falta clave
+    s3 = boto3.client("s3", region_name=REGION)  # en EC2 usa el IAM Role (LabRole)
 
 FIELDS = [
     "event_id",
@@ -46,7 +46,16 @@ seen, buf, last = set(), [], time.time()
 
 
 def flush():
+    """
+    Escribe el lote actual en CSV local y lo sube a S3.
+    Solo ejecuta c.commit() en Kafka después de que S3 acepte el archivo exitosamente
+    (o si está activo LOCAL_ONLY=1). Si la subida a S3 falla, conserva el buffer en
+    memoria sin confirmar el offset de Kafka para reintentar en el siguiente ciclo.
+    """
     global buf, last
+    if not buf:
+        return
+
     d = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     rel = f"raw/entity=play_events/ingest_date={d}/events_{int(time.time()*1000)}.csv"
     path = f"datalake/{rel}"
@@ -55,17 +64,39 @@ def flush():
         w = csv.DictWriter(f, fieldnames=FIELDS)
         w.writeheader()
         w.writerows(buf)
-    msg = f"Guardados {len(buf)} eventos en {path}"
+
     if s3:
         try:
             s3.upload_file(path, BUCKET, rel)
-            msg += f"  ->  s3://{BUCKET}/{rel}"
         except Exception as e:
-            msg += f"  (ERROR subiendo a S3: {e})"
-    c.commit()
-    print(msg)
+            print(
+                f"ERROR subiendo a S3 ({e}). Offset de Kafka NO confirmado; "
+                f"se reintentará el lote de {len(buf)} eventos.",
+                flush=True,
+            )
+            last = time.time()
+            return
+
+        c.commit(asynchronous=False)
+        print(
+            f"Guardados {len(buf)} eventos en {path}  ->  s3://{BUCKET}/{rel} (Kafka offset confirmado)",
+            flush=True,
+        )
+    else:
+        c.commit(asynchronous=False)
+        print(
+            f"Guardados {len(buf)} eventos en {path} (LOCAL_ONLY=1, Kafka offset confirmado)",
+            flush=True,
+        )
+
     buf, last = [], time.time()
 
+
+print(
+    f"[consumer] Escuchando topic='{TOPIC}' en {BOOT} -> "
+    f"{'s3://' + BUCKET + '/raw/entity=play_events/' if BUCKET else 'LOCAL_ONLY (datalake/)'}",
+    flush=True,
+)
 
 try:
     while True:
@@ -84,3 +115,5 @@ try:
 except KeyboardInterrupt:
     if buf:
         flush()
+finally:
+    c.close()
