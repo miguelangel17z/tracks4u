@@ -2,8 +2,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView
 
-from .models import Track
-from .services import TrackCreatorService, TrackQueryService
+from .models import Artist, Genre, Track
+from .services import TrackCreatorService
 
 
 def home(request):
@@ -25,6 +25,11 @@ class TrackCreateView(CreateView):
     template_name = "tracks/track_form.html"
     success_url = reverse_lazy("track-list")
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["genres"] = Genre.objects.all().order_by("name")
+        return ctx
+
     def form_valid(self, form):
         track = form.save()
         TrackCreatorService.crear_track(track)
@@ -37,7 +42,17 @@ class TrackListView(ListView):
     context_object_name = "tracks"
 
     def get_queryset(self):
-        return Track.objects.select_related("artist").prefetch_related("genres").order_by("-created_at")
+        return (
+            Track.objects.select_related("artist")
+            .prefetch_related("genres")
+            .order_by("-created_at", "-id")
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["genres"] = Genre.objects.all().order_by("name")
+        ctx["selected_genre"] = self.request.GET.get("genre", "")
+        return ctx
 
 
 class TrackDetailView(DetailView):
@@ -47,3 +62,21 @@ class TrackDetailView(DetailView):
 
     def get_queryset(self):
         return Track.objects.select_related("artist").prefetch_related("genres")
+
+
+class ArtistDetailView(DetailView):
+    model = Artist
+    template_name = "tracks/artist_detail.html"
+    context_object_name = "artist"
+
+    def get_queryset(self):
+        return Artist.objects.prefetch_related("genres", "tracks__genres")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["tracks"] = (
+            self.object.tracks.select_related("artist")
+            .prefetch_related("genres")
+            .order_by("-created_at", "-id")
+        )
+        return ctx

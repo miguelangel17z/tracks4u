@@ -1,114 +1,170 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Create Track" %} - Tracks4U{% endblock %}
+{% block title %}{% trans "Upload Track" %} - Tracks4U{% endblock %}
+{% block body_attrs %}data-view="track_upload" data-entrypoint="library"{% endblock %}
 
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 py-12">
     <div class="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 rounded-xl p-8 shadow-2xl">
         <h1 class="text-3xl font-bold text-white mb-2">{% trans "Upload New Track" %}</h1>
-        <p class="text-zinc-400 mb-8">{% trans "Share your music with the world" %}</p>
+        <p class="text-zinc-400 mb-6">{% trans "Share your music with the world (requires an Artist profile)" %}</p>
 
-        <form method="post" enctype="multipart/form-data" class="space-y-6">
+        <div id="uploadMessage" class="hidden mb-6 p-4 rounded-lg text-sm"></div>
+
+        <form id="trackUploadForm" enctype="multipart/form-data" class="space-y-5">
             {% csrf_token %}
-
-            <!-- Django Form Fields with Custom Styling -->
-            <div class="space-y-6">
-                {% for field in form %}
-                <div>
-                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-zinc-300 mb-2">
-                        {{ field.label }}
-                        {% if field.field.required %}
-                            <span class="text-red-500">*</span>
-                        {% endif %}
-                    </label>
-
-                    {% if field.field.widget.input_type == 'file' %}
-                        <input
-                            type="file"
-                            name="{{ field.name }}"
-                            id="{{ field.id_for_label }}"
-                            {% if field.field.required %}required{% endif %}
-                            class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-red-600 file:text-white file:font-semibold hover:file:bg-red-700 focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-all"
-                        >
-                    {% elif field.field.widget.input_type == 'select' %}
-                        <select
-                            name="{{ field.name }}"
-                            id="{{ field.id_for_label }}"
-                            {% if field.field.required %}required{% endif %}
-                            class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-all"
-                        >
-                            {% for choice_value, choice_label in field.field.choices %}
-                                <option value="{{ choice_value }}" {% if field.value == choice_value %}selected{% endif %}>{{ choice_label }}</option>
-                            {% endfor %}
-                        </select>
-                    {% elif field.field.widget.input_type == 'textarea' %}
-                        <textarea
-                            name="{{ field.name }}"
-                            id="{{ field.id_for_label }}"
-                            rows="4"
-                            {% if field.field.required %}required{% endif %}
-                            class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-all"
-                        >{{ field.value|default:'' }}</textarea>
-                    {% elif field.field.widget.input_type == 'number' %}
-                        <input
-                            type="number"
-                            name="{{ field.name }}"
-                            id="{{ field.id_for_label }}"
-                            value="{{ field.value|default:'' }}"
-                            {% if field.field.required %}required{% endif %}
-                            class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-all"
-                        >
-                    {% else %}
-                        <input
-                            type="text"
-                            name="{{ field.name }}"
-                            id="{{ field.id_for_label }}"
-                            value="{{ field.value|default:'' }}"
-                            {% if field.field.required %}required{% endif %}
-                            class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-all"
-                        >
-                    {% endif %}
-
-                    {% if field.help_text %}
-                        <p class="mt-2 text-sm text-zinc-500">{{ field.help_text }}</p>
-                    {% endif %}
-
-                    {% if field.errors %}
-                        <div class="mt-2 p-3 bg-red-900/20 border border-red-800 rounded-lg">
-                            {% for error in field.errors %}
-                                <p class="text-red-400 text-sm">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-                {% endfor %}
+            <div>
+                <label for="title" class="block text-sm font-medium text-zinc-300 mb-1">{% trans "Title" %} *</label>
+                <input type="text" id="title" name="title" required class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white">
             </div>
 
-            {% if form.non_field_errors %}
-                <div class="p-4 bg-red-900/20 border border-red-800 rounded-lg">
-                    {% for error in form.non_field_errors %}
-                        <p class="text-red-400 text-sm">{{ error }}</p>
-                    {% endfor %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="audio_file" class="block text-sm font-medium text-zinc-300 mb-1">{% trans "Audio File" %} (.mp3, .wav, .flac, .m4a, .ogg, .opus) *</label>
+                    <input type="file" id="audio_file" name="audio_file" accept=".mp3,.wav,.flac,.m4a,.ogg,.opus,audio/*" required
+                           class="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-red-600 file:text-white">
                 </div>
-            {% endif %}
+                <div>
+                    <label for="cover_image" class="block text-sm font-medium text-zinc-300 mb-1">{% trans "Cover Image" %} (.jpg, .png, .webp)</label>
+                    <input type="file" id="cover_image" name="cover_image" accept=".jpg,.jpeg,.png,.webp,image/*"
+                           class="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-zinc-700 file:text-white">
+                </div>
+            </div>
 
-            <!-- Submit Button -->
-            <div class="flex gap-4">
-                <button
-                    type="submit"
-                    class="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold shadow-lg shadow-red-900/50 transition-all hover:shadow-red-900/70 hover:-translate-y-0.5"
-                >
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="price" class="block text-sm font-medium text-zinc-300 mb-1">{% trans "Price (USD)" %} *</label>
+                    <input type="number" id="price" name="price" step="0.01" min="0" value="4.99" required class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white">
+                </div>
+                <div>
+                    <label for="bpm" class="block text-sm font-medium text-zinc-300 mb-1">{% trans "BPM" %} (1–300)</label>
+                    <input type="number" id="bpm" name="bpm" min="1" max="300" value="120" class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white">
+                </div>
+                <div>
+                    <label for="track_type" class="block text-sm font-medium text-zinc-300 mb-1">{% trans "Track Type" %}</label>
+                    <select id="track_type" name="track_type" class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white">
+                        <option value="ORIGINAL">ORIGINAL</option>
+                        <option value="REMIX">REMIX</option>
+                        <option value="COVER">COVER</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="language" class="block text-sm font-medium text-zinc-300 mb-1">{% trans "Language" %}</label>
+                    <select id="language" name="language" class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white">
+                        <option value="es">Español (es)</option>
+                        <option value="en">English (en)</option>
+                        <option value="instrumental">Instrumental</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="subgenre" class="block text-sm font-medium text-zinc-300 mb-1">{% trans "Subgenre" %}</label>
+                    <input type="text" id="subgenre" name="subgenre" placeholder="Perreo / Boom Bap" class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white">
+                </div>
+                <div>
+                    <label for="mood_tags" class="block text-sm font-medium text-zinc-300 mb-1">{% trans "Mood Tags (comma-separated)" %}</label>
+                    <input type="text" id="mood_tags" name="mood_tags" placeholder="party, chill, dark" class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white">
+                </div>
+            </div>
+
+            <div>
+                <label for="genre_ids" class="block text-sm font-medium text-zinc-300 mb-1">{% trans "Genres (select at least one)" %} *</label>
+                <select id="genre_ids" name="genre_ids" multiple required class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white h-36">
+                    {% for g in genres %}
+                        <option value="{{ g.id }}">{{ g.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="flex gap-4 pt-2">
+                <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold shadow-lg shadow-red-900/50 transition-all">
                     {% trans "Upload Track" %}
                 </button>
-                <a
-                    href="{% url 'track-list' %}"
-                    class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-semibold border border-zinc-700 transition-all"
-                >
+                <a href="{% url 'track-list' %}" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-semibold border border-zinc-700">
                     {% trans "Cancel" %}
                 </a>
             </div>
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const token = localStorage.getItem('token');
+
+window.addEventListener('load', async function() {
+    const sel = document.getElementById('genre_ids');
+    if (sel && sel.options.length === 0) {
+        try {
+            const res = await fetch('/api/genres/');
+            if (res.ok) {
+                const genres = await res.json();
+                sel.innerHTML = genres.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+            }
+        } catch (e) {}
+    }
+});
+
+document.getElementById('trackUploadForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const msgEl = document.getElementById('uploadMessage');
+    if (!token) {
+        window.location.href = '/users/login/';
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', document.getElementById('title').value);
+    formData.append('price', document.getElementById('price').value);
+    formData.append('bpm', document.getElementById('bpm').value);
+    formData.append('track_type', document.getElementById('track_type').value);
+    formData.append('language', document.getElementById('language').value);
+
+    const subgenre = document.getElementById('subgenre').value.trim();
+    if (subgenre) formData.append('subgenre', subgenre);
+
+    const moodTags = document.getElementById('mood_tags').value.trim();
+    if (moodTags) formData.append('mood_tags', moodTags);
+
+    const audioFile = document.getElementById('audio_file').files[0];
+    if (audioFile) formData.append('audio_file', audioFile);
+
+    const coverFile = document.getElementById('cover_image').files[0];
+    if (coverFile) formData.append('cover_image', coverFile);
+
+    const selectedGenres = Array.from(document.getElementById('genre_ids').selectedOptions).map(o => o.value);
+    selectedGenres.forEach(gid => formData.append('genre_ids', gid));
+
+    const headers = { 'Authorization': `Bearer ${token}` };
+    if (window.Telemetry) {
+        Object.assign(headers, window.Telemetry.getContextHeaders());
+    }
+
+    try {
+        const res = await fetch('/api/tracks/', {
+            method: 'POST',
+            headers: headers,
+            body: formData,
+        });
+        const data = await res.json();
+        msgEl.classList.remove('hidden');
+        if (res.status === 201) {
+            msgEl.className = 'mb-6 p-4 bg-green-900/20 border border-green-800 rounded-lg text-green-400 text-sm';
+            msgEl.textContent = `✓ {% trans "Track uploaded!" %} (${data.title})`;
+            setTimeout(() => { window.location.href = `/tracks/${data.id}/`; }, 800);
+        } else {
+            msgEl.className = 'mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg text-red-400 text-sm';
+            msgEl.textContent = data.error || JSON.stringify(data);
+        }
+    } catch (err) {
+        msgEl.classList.remove('hidden');
+        msgEl.className = 'mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg text-red-400 text-sm';
+        msgEl.textContent = "{% trans 'Upload error. Please try again.' %}";
+    }
+});
+</script>
 {% endblock %}

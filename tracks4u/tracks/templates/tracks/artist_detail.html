@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ artist.stage_name }} - Tracks4U{% endblock %}
+{% block body_attrs %}data-view="artist_profile" data-entrypoint="artist_profile"{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-12">
+    <a
+        href="{% url 'track-list' %}"
+        class="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-8 transition-colors"
+    >
+        ← {% trans "Back to Tracks" %}
+    </a>
+
+    <!-- Artist Header Card -->
+    <div class="bg-zinc-900/60 border border-zinc-800 rounded-xl p-8 mb-10 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <h1 class="text-4xl font-bold text-white">{{ artist.stage_name }}</h1>
+                    {% if artist.country %}
+                    <span class="px-3 py-1 bg-zinc-800 border border-zinc-700 rounded-full text-xs text-zinc-300">
+                        {{ artist.country }}
+                    </span>
+                    {% endif %}
+                </div>
+                {% if artist.bio %}
+                <p class="text-zinc-300 max-w-2xl mb-4">{{ artist.bio }}</p>
+                {% else %}
+                <p class="text-zinc-500 italic mb-4">{% trans "Official artist profile on Tracks4U." %}</p>
+                {% endif %}
+                <div class="flex flex-wrap gap-2">
+                    {% for g in artist.genres.all %}
+                    <span class="px-3 py-1 bg-red-900/30 border border-red-800/60 text-red-300 rounded-full text-xs font-semibold">
+                        {{ g.name }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button
+                    type="button"
+                    onclick="window.T4UPlayer && window.T4UPlayer.toggleFollow({{ artist.id }}, this)"
+                    class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-white font-semibold transition-all"
+                >
+                    + {% trans "Follow" %}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Artist Tracks -->
+    <h2 class="text-2xl font-bold text-white mb-6">{% trans "Published Tracks" %}</h2>
+    <div class="space-y-4">
+        {% for track in tracks %}
+        <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                    <h3 class="text-xl font-bold text-white hover:text-red-500 transition-colors">
+                        <a href="{% url 'track-detail' track.pk %}">{{ track.title }}</a>
+                    </h3>
+                    {% if track.track_type %}
+                    <span class="px-2 py-0.5 text-xs bg-zinc-800 border border-zinc-700 rounded text-zinc-400">
+                        {{ track.track_type }}
+                    </span>
+                    {% endif %}
+                </div>
+                {% if track.audio_file %}
+                <audio
+                    controls
+                    preload="none"
+                    data-track-id="{{ track.id }}"
+                    class="t4u-audio w-full max-w-xl mb-3 h-10"
+                    src="{{ track.audio_file.url }}"
+                ></audio>
+                {% endif %}
+                <div class="flex flex-wrap gap-2 text-xs text-zinc-400">
+                    {% for g in track.genres.all %}
+                    <span class="px-2 py-0.5 bg-red-900/20 border border-red-800/40 text-red-300 rounded">{{ g.name }}</span>
+                    {% endfor %}
+                    {% if track.subgenre %}
+                    <span class="px-2 py-0.5 bg-zinc-800 rounded">{{ track.subgenre }}</span>
+                    {% endif %}
+                    {% if track.duration_sec %}
+                    <span class="px-2 py-0.5 bg-zinc-800 rounded">{{ track.duration_sec }}s</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xl font-bold text-white">${{ track.price }} <span class="text-xs text-zinc-400">USD</span></span>
+                <button
+                    type="button"
+                    onclick="window.T4UPlayer && window.T4UPlayer.toggleLike({{ track.id }}, this)"
+                    class="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-zinc-300 text-sm"
+                >
+                    ♥ {% trans "Like" %}
+                </button>
+                <a
+                    href="{% url 'track-detail' track.pk %}"
+                    class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg font-semibold transition-all"
+                >
+                    {% trans "View / Buy" %}
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-12 bg-zinc-900/30 border border-zinc-800 rounded-xl text-zinc-400">
+            {% trans "This artist has not published any tracks yet." %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

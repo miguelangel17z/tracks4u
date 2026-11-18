@@ -8,10 +8,9 @@ import tracks4u.settings as project_settings
 
 
 class SettingsConfigurationTests(SimpleTestCase):
-    def test_no_sqlite_in_databases(self):
+    def test_postgresql_engine_in_databases(self):
         engine = project_settings.DATABASES["default"]["ENGINE"]
         self.assertEqual(engine, "django.db.backends.postgresql")
-        self.assertNotIn("sqlite", engine.lower())
 
     def test_db_use_admin_without_admin_user_keeps_default_user(self):
         env_overrides = {

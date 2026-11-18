@@ -6,9 +6,16 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from payment.services import OrderService
+from tracks.api.serializers import ArtistSerializer
 from tracks.models import Artist
-from ..service import AuthService, RegisterService, UpdateProfileService
-from .serializers import LoginSerializer, UpdateProfileSerializer, UserSerializer
+from ..service import ArtistService, AuthService, RegisterService, UpdateProfileService
+from .serializers import (
+    ArtistOnboardingSerializer,
+    ArtistUpdateSerializer,
+    LoginSerializer,
+    UpdateProfileSerializer,
+    UserSerializer,
+)
 
 
 class loginView(APIView):
@@ -69,6 +76,9 @@ class RegisterView(APIView):
 class UpdateProfileView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+
+    def get_authenticate_header(self, request):
+        return "Bearer"
 
     def get(self, request):
         """Obtiene la información del perfil del usuario y su historial de compras."""
@@ -152,3 +162,62 @@ class UpdateProfileView(APIView):
                 {"error": str(exc)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+
+class BecomeArtistView(APIView):
+    """POST /users/api/become-artist/ — Convierte al usuario autenticado en artista."""
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_authenticate_header(self, request):
+        return "Bearer"
+
+    def post(self, request):
+        serializer = ArtistOnboardingSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            artist = ArtistService.become_artist(
+                user=request.user,
+                stage_name=serializer.validated_data["stage_name"],
+                bio=serializer.validated_data.get("bio") or "",
+                country=serializer.validated_data.get("country"),
+                genre_ids=serializer.validated_data.get("genre_ids"),
+            )
+            return Response(
+                ArtistSerializer(artist, context={"request": request}).data,
+                status=status.HTTP_201_CREATED,
+            )
+        except ValueError as exc:
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ArtistProfileUpdateView(APIView):
+    """PATCH /users/api/artist/ — Edita el perfil de artista del usuario autenticado."""
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_authenticate_header(self, request):
+        return "Bearer"
+
+    def patch(self, request):
+        serializer = ArtistUpdateSerializer(data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            artist = ArtistService.update_artist(
+                user=request.user,
+                data=serializer.validated_data,
+            )
+            return Response(
+                ArtistSerializer(artist, context={"request": request}).data,
+                status=status.HTTP_200_OK,
+            )
+        except PermissionError as exc:
+            return Response({"error": str(exc)}, status=status.HTTP_403_FORBIDDEN)
+        except ValueError as exc:
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)

@@ -1,6 +1,7 @@
 from datetime import date
 from rest_framework import serializers
 
+from tracks.models import Artist, Genre
 from users.models import User
 
 
@@ -75,3 +76,40 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
         if value not in valid:
             raise serializers.ValidationError(f"Invalid gender. Must be one of {sorted(valid)}.")
         return value
+
+
+class ArtistOnboardingSerializer(serializers.Serializer):
+    stage_name = serializers.CharField(max_length=150, required=True)
+    bio = serializers.CharField(required=False, allow_blank=True, allow_null=True, default="")
+    country = serializers.CharField(
+        max_length=100,
+        required=False,
+        allow_blank=True,
+        allow_null=True,
+    )
+    genre_ids = serializers.ListField(
+        child=serializers.IntegerField(min_value=1),
+        required=False,
+        allow_empty=True,
+    )
+
+    def validate_stage_name(self, value: str) -> str:
+        if not value or not value.strip():
+            raise serializers.ValidationError("stage_name cannot be empty.")
+        return value.strip()
+
+
+class ArtistUpdateSerializer(serializers.Serializer):
+    stage_name = serializers.CharField(max_length=150, required=False)
+    bio = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    country = serializers.CharField(
+        max_length=100,
+        required=False,
+        allow_blank=True,
+        allow_null=True,
+    )
+    genre_ids = serializers.ListField(
+        child=serializers.IntegerField(min_value=1),
+        required=False,
+        allow_empty=True,
+    )

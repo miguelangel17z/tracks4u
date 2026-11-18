@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Playlists" %} - Tracks4U{% endblock %}
+{% block body_attrs %}data-view="playlist" data-entrypoint="playlist"{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-12">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div>
+            <h1 class="text-4xl font-bold text-white mb-2">{% trans "Playlists" %}</h1>
+            <p class="text-zinc-400">{% trans "Create, organize and listen to your custom playlists" %}</p>
+        </div>
+    </div>
+
+    <div id="playlistMessage" class="hidden mb-6 p-4 rounded-lg"></div>
+
+    <!-- Create Playlist Form -->
+    <div class="bg-zinc-900/60 border border-zinc-800 rounded-xl p-6 mb-10">
+        <h2 class="text-xl font-bold text-white mb-4">{% trans "Create New Playlist" %}</h2>
+        <form id="createPlaylistForm" class="grid md:grid-cols-4 gap-4 items-end">
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">{% trans "Name" %} *</label>
+                <input
+                    type="text"
+                    id="plName"
+                    required
+                    maxlength="150"
+                    placeholder="{% trans 'My favorite tracks' %}"
+                    class="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:border-red-600"
+                >
+            </div>
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">{% trans "Description" %}</label>
+                <input
+                    type="text"
+                    id="plDescription"
+                    placeholder="{% trans 'Optional description' %}"
+                    class="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:border-red-600"
+                >
+            </div>
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">{% trans "Tags (comma-separated)" %}</label>
+                <input
+                    type="text"
+                    id="plTags"
+                    placeholder="chill, workout, latin"
+                    class="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:border-red-600"
+                >
+            </div>
+            <div class="flex items-center justify-between gap-3">
+                <label class="inline-flex items-center gap-2 text-sm text-zinc-300">
+                    <input type="checkbox" id="plPublic" checked class="accent-red-600">
+                    {% trans "Public" %}
+                </label>
+                <button
+                    type="submit"
+                    class="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-semibold transition-all"
+                >
+                    + {% trans "Create" %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Playlists Grid -->
+    <div id="playlistsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for pl in playlists %}
+        <a
+            href="/playlists/{{ pl.id }}/"
+            class="block bg-zinc-900/50 border border-zinc-800 hover:border-red-600/60 rounded-xl p-6 transition-all"
+        >
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-xl font-bold text-white">{{ pl.name }}</h3>
+                <span class="px-2 py-0.5 text-xs rounded {% if pl.is_public %}bg-green-900/30 text-green-400 border border-green-800{% else %}bg-zinc-800 text-zinc-400 border border-zinc-700{% endif %}">
+                    {% if pl.is_public %}{% trans "Public" %}{% else %}{% trans "Private" %}{% endif %}
+                </span>
+            </div>
+            {% if pl.description %}
+            <p class="text-sm text-zinc-400 mb-4">{{ pl.description }}</p>
+            {% endif %}
+            {% if pl.tags %}
+            <div class="flex flex-wrap gap-1.5">
+                {% for t in pl.tags %}
+                <span class="px-2 py-0.5 text-xs bg-zinc-800 text-zinc-300 rounded">#{{ t }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </a>
+        {% empty %}
+        <div class="col-span-full text-center py-12 text-zinc-400">
+            {% trans "No playlists available yet." %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.getElementById('createPlaylistForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/users/login/';
+        return;
+    }
+    const name = document.getElementById('plName').value.trim();
+    const description = document.getElementById('plDescription').value.trim();
+    const rawTags = document.getElementById('plTags').value.trim();
+    const tags = rawTags ? rawTags.split(',').map(s => s.trim()).filter(Boolean) : [];
+    const is_public = document.getElementById('plPublic').checked;
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+    };
+    if (window.Telemetry) {
+        Object.assign(headers, window.Telemetry.getContextHeaders());
+    }
+
+    const res = await fetch('/api/playlists/', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({ name, description, tags, is_public }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+        window.location.href = `/playlists/${data.id}/`;
+    } else {
+        const msg = document.getElementById('playlistMessage');
+        msg.textContent = data.error || JSON.stringify(data);
+        msg.className = 'mb-6 p-4 rounded-lg bg-red-900/20 border border-red-800 text-red-400';
+        msg.classList.remove('hidden');
+    }
+});
+</script>
+{% endblock %}

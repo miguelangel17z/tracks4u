@@ -23,6 +23,11 @@ class TrackSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False,
     )
+    mood_tags = serializers.ListField(
+        child=serializers.CharField(max_length=60),
+        required=False,
+        allow_null=True,
+    )
 
     class Meta:
         model = Track
@@ -44,4 +49,40 @@ class TrackSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "artist", "genres", "duration_sec", "created_at", "updated_at"]
+        read_only_fields = [
+            "id",
+            "artist",
+            "genres",
+            "duration_sec",
+            "created_at",
+            "updated_at",
+        ]
+
+    def validate_bpm(self, value):
+        if value is not None and not (1 <= value <= 300):
+            raise serializers.ValidationError("BPM must be between 1 and 300.")
+        return value
+
+    def validate_price(self, value):
+        if value is not None and value < 0:
+            raise serializers.ValidationError("Price must be >= 0.")
+        return value
+
+
+class ArtistSerializer(serializers.ModelSerializer):
+    genres = GenreSerializer(many=True, read_only=True)
+    tracks = TrackSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Artist
+        fields = [
+            "id",
+            "user_id",
+            "stage_name",
+            "bio",
+            "country",
+            "genres",
+            "tracks",
+            "created_at",
+            "updated_at",
+        ]

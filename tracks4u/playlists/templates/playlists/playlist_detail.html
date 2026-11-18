@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ playlist.name }} - Tracks4U{% endblock %}
+{% block body_attrs %}data-view="playlist" data-entrypoint="playlist"{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-12">
+    <a
+        href="/playlists/"
+        class="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-6 transition-colors"
+    >
+        ← {% trans "Back to Playlists" %}
+    </a>
+
+    <!-- Playlist Header -->
+    <div class="bg-zinc-900/60 border border-zinc-800 rounded-xl p-8 mb-8">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <h1 class="text-3xl font-bold text-white">{{ playlist.name }}</h1>
+                    <span class="px-2.5 py-0.5 text-xs rounded {% if playlist.is_public %}bg-green-900/30 text-green-400 border border-green-800{% else %}bg-zinc-800 text-zinc-400 border border-zinc-700{% endif %}">
+                        {% if playlist.is_public %}{% trans "Public" %}{% else %}{% trans "Private" %}{% endif %}
+                    </span>
+                </div>
+                {% if playlist.description %}
+                <p class="text-zinc-300 mb-3">{{ playlist.description }}</p>
+                {% endif %}
+                {% if playlist.tags %}
+                <div class="flex flex-wrap gap-2">
+                    {% for tag in playlist.tags %}
+                    <span class="px-2.5 py-0.5 text-xs bg-zinc-800 text-zinc-300 rounded">#{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="flex items-center gap-3">
+                <button
+                    type="button"
+                    onclick="window.T4UPlayer && window.T4UPlayer.skipCurrent()"
+                    class="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-white text-sm font-medium"
+                >
+                    ⏭ {% trans "Skip / Next Track" %}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="plDetailMessage" class="hidden mb-6 p-4 rounded-lg"></div>
+
+    <!-- Playlist Tracks -->
+    <div id="playlistTracksList" class="space-y-3">
+        {% for item in items %}
+        <div
+            class="pl-item bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
+            data-track-id="{{ item.track.id }}"
+        >
+            <div class="flex items-center gap-4 flex-1">
+                <span class="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-sm font-bold text-red-400">
+                    {{ item.position }}
+                </span>
+                <div class="flex-1">
+                    <a href="{% url 'track-detail' item.track.id %}" class="text-lg font-bold text-white hover:text-red-500">
+                        {{ item.track.title }}
+                    </a>
+                    {% if item.track.artist %}
+                    <p class="text-xs text-zinc-400">{{ item.track.artist.stage_name }}</p>
+                    {% endif %}
+                    {% if item.track.audio_file %}
+                    <audio
+                        controls
+                        preload="none"
+                        data-track-id="{{ item.track.id }}"
+                        data-playlist-id="{{ playlist.id }}"
+                        class="t4u-audio w-full max-w-lg mt-2 h-10"
+                        src="{{ item.track.audio_file.url }}"
+                    ></audio>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button
+                    type="button"
+                    onclick="moveTrack({{ item.track.id }}, -1)"
+                    title="{% trans 'Move Up' %}"
+                    class="px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded text-xs text-zinc-300"
+                >
+                    ↑
+                </button>
+                <button
+                    type="button"
+                    onclick="moveTrack({{ item.track.id }}, 1)"
+                    title="{% trans 'Move Down' %}"
+                    class="px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded text-xs text-zinc-300"
+                >
+                    ↓
+                </button>
+                <button
+                    type="button"
+                    onclick="removeTrack({{ item.track.id }})"
+                    class="px-3 py-1.5 bg-red-950/50 hover:bg-red-900/60 border border-red-800/60 rounded text-xs text-red-300"
+                >
+                    {% trans "Remove" %}
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-12 bg-zinc-900/30 border border-zinc-800 rounded-xl text-zinc-400">
+            {% trans "This playlist has no tracks yet." %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const PLAYLIST_ID = Number("{{ playlist.id }}");
+
+function getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (window.Telemetry) Object.assign(headers, window.Telemetry.getContextHeaders());
+    return headers;
+}
+
+async function removeTrack(trackId) {
+    const res = await fetch(`/api/playlists/${PLAYLIST_ID}/tracks/${trackId}/`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+    });
+    if (res.ok) {
+        window.location.reload();
+    }
+}
+
+async function moveTrack(trackId, direction) {
+    const nodes = Array.from(document.querySelectorAll('.pl-item'));
+    const ids = nodes.map(n => Number(n.dataset.trackId));
+    const idx = ids.indexOf(Number(trackId));
+    const targetIdx = idx + direction;
+    if (idx < 0 || targetIdx < 0 || targetIdx >= ids.length) return;
+
+    const tmp = ids[idx];
+    ids[idx] = ids[targetIdx];
+    ids[targetIdx] = tmp;
+
+    const res = await fetch(`/api/playlists/${PLAYLIST_ID}/order/`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ track_ids: ids }),
+    });
+    if (res.ok) {
+        window.location.reload();
+    }
+}
+</script>
+{% endblock %}

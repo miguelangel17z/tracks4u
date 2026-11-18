@@ -3,7 +3,9 @@ from typing import List, Optional
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Q
 
+from core.validators import extract_duration_sec
 from .infra.notifications.factory import NotificationFactory
 from .models import Artist, Genre, Track, TrackGenre
 
@@ -11,22 +13,36 @@ logger = logging.getLogger(__name__)
 
 
 class TrackCreatorService:
-    """Responsable de orquestar la creación de un track."""
+    """Responsable de orquestar la creación de un track por un artista."""
 
     @staticmethod
     def crear_track(
         track: Track,
         genre_ids: Optional[List[int]] = None,
+        artist: Optional[Artist] = None,
+        uploaded_audio=None,
         notificar_admin: bool = True,
     ) -> Track:
         with transaction.atomic():
+            if artist is not None:
+                track.artist = artist
+
+            if uploaded_audio is not None and track.duration_sec is None:
+                track.duration_sec = extract_duration_sec(uploaded_audio)
+
             if genre_ids is not None:
                 genres = list(Genre.objects.filter(id__in=genre_ids))
                 if not genres:
                     raise ValueError("A track must have at least one valid genre.")
+                if track.pk is None:
+                    track.save()
                 TrackGenre.objects.filter(track=track).delete()
                 for g in genres:
                     TrackGenre.objects.get_or_create(track=track, genre=g)
+            elif track.pk is None:
+                track.save()
+            else:
+                track.save()
 
             if notificar_admin:
                 transaction.on_commit(
@@ -73,7 +89,7 @@ class TrackNotificationService:
 
 
 class TrackQueryService:
-    """Responsable de consultar tracks."""
+    """Responsable de consultar y filtrar tracks."""
 
     @staticmethod
     def obtener_por_id(track_id: int) -> Optional[Track]:
@@ -85,12 +101,40 @@ class TrackQueryService:
         )
 
     @staticmethod
-    def listar_disponibles() -> List[Track]:
-        return list(
+    def filtrar(
+        q: Optional[str] = None,
+        genre: Optional[str] = None,
+        artist: Optional[str] = None,
+    ):
+        qs = (
             Track.objects.select_related("artist")
             .prefetch_related("genres")
-            .order_by("-created_at")
+            .order_by("-created_at", "-id")
         )
+        if q and q.strip():
+            term = q.strip()
+            qs = qs.filter(
+                Q(title__icontains=term)
+                | Q(subgenre__icontains=term)
+                | Q(artist__stage_name__icontains=term)
+            )
+        if genre and str(genre).strip():
+            g_val = str(genre).strip()
+            if g_val.isdigit():
+                qs = qs.filter(genres__id=int(g_val))
+            else:
+                qs = qs.filter(genres__name__iexact=g_val)
+        if artist and str(artist).strip():
+            a_val = str(artist).strip()
+            if a_val.isdigit():
+                qs = qs.filter(artist_id=int(a_val))
+            else:
+                qs = qs.filter(artist__stage_name__icontains=a_val)
+        return qs.distinct()
+
+    @staticmethod
+    def listar_disponibles() -> List[Track]:
+        return list(TrackQueryService.filtrar())
 
     @staticmethod
     def listar_todos() -> List[Track]:
