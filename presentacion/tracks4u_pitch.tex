@@ -23,7 +23,7 @@
 \definecolor{accent}{HTML}{FF5500}
 \definecolor{batch}{HTML}{2563EB}
 \definecolor{sysgray}{HTML}{475569}   % metadatos de sistema
-\definecolor{wmgreen}{HTML}{16A34A}   % watermark / outbox
+\definecolor{wmgreen}{HTML}{16A34A}   % watermark
 \definecolor{rawc}{HTML}{64748B}
 
 % ---------- Tema minimalista ----------
@@ -42,14 +42,14 @@
   {\color{line}\rule{\textwidth}{0.6pt}}%
 }
 \setbeamertemplate{footline}{%
-  \hbox to \paperwidth{\hspace{9mm}\color{muted}\tiny tracks4u $\cdot$ Ingeniería de Datos (Django + RDS + S3 + Glue + Kafka + ML)
+  \hbox to \paperwidth{\hspace{9mm}\color{muted}\tiny tracks4u $\cdot$ Ingeniería de Datos
   \hfill\insertframenumber\,/\,\inserttotalframenumber\hspace{9mm}}%
   \vskip2.5mm}
 
 % ---------- Helpers ----------
 \newcommand{\kick}[1]{{\color{accent}\footnotesize\bfseries\MakeUppercase{#1}}\par}
 \newcommand{\pillS}{\tikz[baseline=(p.base)]\node[fill=accent!12,text=accent,rounded corners=3pt,inner sep=2pt,font=\scriptsize\bfseries](p){STREAMING};}
-\newcommand{\pillB}{\tikz[baseline=(p.base)]\node[fill=batch!12,text=batch,rounded corners=3pt,inner sep=2pt,font=\scriptsize\bfseries](p){BATCH / CDC};}
+\newcommand{\pillB}{\tikz[baseline=(p.base)]\node[fill=batch!12,text=batch,rounded corners=3pt,inner sep=2pt,font=\scriptsize\bfseries](p){BATCH};}
 \newcommand{\pillM}{\tikz[baseline=(p.base)]\node[fill=wmgreen!14,text=wmgreen,rounded corners=3pt,inner sep=2pt,font=\scriptsize\bfseries](p){ML / ANALYTICS};}
 \newcommand{\PK}{\textcolor{accent}{PK}~}
 \newcommand{\FK}{\textcolor{batch}{FK}~}
@@ -62,16 +62,12 @@
   flowB/.style={-{Stealth[length=2mm]},line width=1pt,draw=batch},
   % --- diagrama de clases ---
   umlc/.style={rectangle split,rectangle split parts=3,draw=ink,line width=0.6pt,
-    text width=29mm,align=left,inner sep=2.0pt,anchor=north,text=ink,
-    font=\fontsize{5.2}{6.0}\selectfont\ttfamily},
+    text width=30mm,align=left,inner sep=2.2pt,anchor=north,text=ink,
+    font=\fontsize{5.5}{6.3}\selectfont\ttfamily},
   umlw/.style={rectangle split,rectangle split parts=2,draw=wmgreen,line width=0.6pt,
-    text width=29mm,align=left,inner sep=2.0pt,anchor=north,text=ink,
-    font=\fontsize{5.2}{6.0}\selectfont\ttfamily,
+    text width=30mm,align=left,inner sep=2.2pt,anchor=north,text=ink,
+    font=\fontsize{5.5}{6.3}\selectfont\ttfamily,
     rectangle split part fill={wmgreen,white}},
-  umlo/.style={rectangle split,rectangle split parts=2,draw=accent,line width=0.6pt,
-    text width=29mm,align=left,inner sep=2.0pt,anchor=north,text=ink,
-    font=\fontsize{5.2}{6.0}\selectfont\ttfamily,
-    rectangle split part fill={accent,white}},
   rel/.style={line width=0.6pt,draw=ink},
   mult/.style={font=\fontsize{5}{6}\selectfont\bfseries,text=ink,inner sep=1pt},
   verb/.style={font=\fontsize{5}{6}\selectfont\itshape,text=muted,inner sep=1.5pt},
@@ -86,88 +82,89 @@
 % ===================== 1 · PORTADA =====================
 \begin{frame}[plain]
   \vfill
-  \kick{Sistemas Intensivos en Datos $\cdot$ Arquitectura Implementada}
+  \kick{Pitch $\cdot$ Ingeniería de Datos en AWS}
   \vspace{0.3em}
   {\color{ink}\fontsize{40}{44}\selectfont\bfseries tracks4u}\par
   \vspace{0.3em}
-  {\color{muted}\Large De portal transaccional en Django a plataforma intensiva en datos en AWS}\par
+  {\color{muted}\Large De portal transaccional en Django a plataforma intensiva en datos}\par
   \vspace{0.6em}{\color{accent}\rule{3cm}{2.5pt}}\par
   \vspace{0.6em}
   {\color{ink}\normalsize Estado en Amazon RDS PostgreSQL $\cdot$ Multimedia y Data Lake en Amazon S3\\
-  Ingesta Batch/CDC con AWS Glue $\cdot$ Streaming con Outbox y Apache Kafka $\cdot$ Recomendador Item-Item}
+  Ingesta Batch con AWS Glue $\cdot$ Streaming con Outbox y Kafka $\cdot$ Recomendador Item-Item}
   \vfill
 \end{frame}
 
 % ===================== 2 · QUÉ ES TRACKS4U =====================
 \section{¿Qué es tracks4u?}
-\begin{frame}{Un portal de música instrumentado de punta a punta}
+\begin{frame}{Un portal de música desplegado en AWS para escuchar, descubrir y comprar}
   \small
-  \textcolor{muted}{tracks4u es una plataforma web en Django desplegada sobre AWS EC2, RDS PostgreSQL y S3. Los oyentes reproducen canciones servidas mediante URLs prefirmadas desde S3, arman playlists y compran canciones directamente.}
+  \textcolor{muted}{tracks4u es una plataforma web en Django conectada a RDS PostgreSQL y Amazon S3. El oyente reproduce música servida desde S3, arma playlists y compra canciones directamente.}
 
-  \vspace{0.9em}
+  \vspace{1em}
   \footnotesize
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.31\textwidth}
       \textbf{\color{accent}Escuchar y descubrir}
       \begin{itemize}\setlength{\itemsep}{2pt}
-        \item Reproductor HTML5 instrumentado (\texttt{player.js} + \texttt{telemetry.js}).
-        \item Catálogo de 36 canciones (\texttt{.opus}) y 33 portadas en S3 con duración extraída vía \texttt{mutagen}.
-        \item Búsqueda por título, subgénero, artista y catálogo de 20 géneros.
+        \item Reproductor continuo instrumentado (\texttt{player.js}).
+        \item 36 canciones (\texttt{.opus}) y 33 portadas en S3 con URLs firmadas.
+        \item Búsqueda por título, artista y catálogo de 20 géneros.
       \end{itemize}
     \end{column}
     \begin{column}{0.31\textwidth}
       \textbf{\color{accent}Organizar y compartir}
       \begin{itemize}\setlength{\itemsep}{2pt}
-        \item Playlists públicas/privadas con \texttt{tags} (\texttt{TEXT[]}) y reordenamiento transaccional.
+        \item Playlists con portada, descripción y \texttt{tags}.
         \item Eventos en vivo de \texttt{like}, \texttt{follow} y \texttt{share}.
-        \item Emisión transaccional de \texttt{playlist\_add} desde el servidor.
+        \item Reordenamiento y evento \texttt{playlist\_add}.
       \end{itemize}
     \end{column}
     \begin{column}{0.31\textwidth}
       \textbf{\color{accent}Comprar y publicar}
       \begin{itemize}\setlength{\itemsep}{2pt}
-        \item Compra directa con órdenes (\texttt{order} + \texttt{order\_item}) y precio congelado (\texttt{price\_paid}).
-        \item Onboarding de artistas y subida validada a S3.
-        \item Dashboard de analítica e ingresos desglosados por género.
+        \item Compra directa con \texttt{order} y \texttt{order\_item}.
+        \item Precio congelado en \texttt{price\_paid}.
+        \item Subida de canciones a S3 y dashboard de ingresos por género.
       \end{itemize}
     \end{column}
   \end{columns}
 
   \vfill
-  \begin{center}\itshape\textcolor{muted}{El estado vive en RDS PostgreSQL, los binarios en S3 y cada interacción viaja al Data Lake.}\end{center}
+  \begin{center}\itshape\textcolor{muted}{Cada acción se persiste en RDS o viaja por Kafka hacia el Data Lake en S3.}\end{center}
 \end{frame}
 
-% ===================== 3 · FUNCIONALIDADES IMPLEMENTADAS =====================
-\section{Funcionalidades implementadas}
+% ===================== 3 · FUNCIONALIDADES =====================
+\section{Funcionalidades del sistema}
 \begin{frame}{Qué construimos en la plataforma de datos}
   \footnotesize
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.48\textwidth}
-      \textbf{\color{accent}Captura y Almacenamiento}
-      \begin{itemize}\setlength{\itemsep}{2pt}
-        \item \textbf{RDS PostgreSQL (\texttt{schema.sql}):} 12 tablas con triggers \texttt{trg\_<tabla>\_set\_updated\_at} y privilegios segregados (\texttt{grants.sql}).
-        \item \textbf{Patrón Outbox (\texttt{telemetry\_event}):} ingesta por lotes en \texttt{POST /api/events/} y drenaje seguro con ventana de asentamiento de 5\,s.
-        \item \textbf{Streaming Kafka:} \texttt{producer.py} drena el outbox hacia el topic \texttt{tracks4u.events} y confirma (\texttt{/ack/}) tras \texttt{flush()}.
+      \textbf{\color{accent}Captura}
+      \begin{itemize}\setlength{\itemsep}{1pt}
+        \item Eventos en vivo guardados en tabla outbox (\texttt{telemetry\_event}).
+        \item Streaming: \texttt{producer.py} drena outbox $\rightarrow$ Kafka (\texttt{tracks4u.events}).
+        \item Batch/CDC: AWS Glue extrae RDS usando \texttt{etl\_watermark}.
       \end{itemize}
-      \vspace{0.5em}
-      \textbf{\color{accent}Ingesta al Data Lake (S3)}
-      \begin{itemize}\setlength{\itemsep}{2pt}
-        \item \textbf{Consumer Kafka $\rightarrow$ RAW:} deduplica por \texttt{event\_id}, escribe CSV y solo hace \texttt{commit()} del offset tras subir a S3.
-        \item \textbf{AWS Glue Batch/CDC:} lectura con \texttt{etl\_watermark} y escritura particionada en S3.
+      \vspace{0.6em}
+      \textbf{\color{accent}Procesamiento}
+      \begin{itemize}\setlength{\itemsep}{1pt}
+        \item \texttt{consumer.py} deduplica por \texttt{event\_id} y escribe CSV en S3 RAW.
+        \item Commit de offset en Kafka solo tras subida exitosa a S3.
+        \item Conversión y limpieza hacia Parquet en S3.
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{\color{accent}Perfilado Conductual (\texttt{ANALYTICS})}
-      \begin{itemize}\setlength{\itemsep}{2pt}
-        \item Construcción automática de \texttt{entity=user\_profile} en Parquet con conteos por tipo de evento y cálculo de \texttt{skip\_rate}.
-        \item Limpieza resiliente: extracción de \texttt{track\_id} desde \texttt{payload}, normalización de IDs y filtrado de anónimos.
+      \textbf{\color{accent}Perfilado (\texttt{ANALYTICS})}
+      \begin{itemize}\setlength{\itemsep}{1pt}
+        \item Perfil conductual por usuario (\texttt{entity=user\_profile}).
+        \item Conteo por tipo de evento y cálculo de \texttt{skip\_rate}.
       \end{itemize}
-      \vspace{0.5em}
-      \textbf{\color{accent}Recomendador ML Item-Item (\texttt{recommend.py})}
-      \begin{itemize}\setlength{\itemsep}{2pt}
-        \item Filtrado colaborativo Item-Item por similitud coseno sobre matriz ponderada usuario $\times$ canción.
-        \item Validación \textit{leave-one-out} (\textbf{Hit-Rate@10 = 0.205} vs \textbf{0.030} popular y \textbf{0.033} azar).
-        \item Despliegue aislado en Docker Compose (\texttt{network\_mode: host} + IAM Role \texttt{LabRole}).
+      \vspace{0.6em}
+      \textbf{\color{accent}Analítica y ML}
+      \begin{itemize}\setlength{\itemsep}{1pt}
+        \item Dashboard de ventas diarias e ingresos por género.
+        \item Recomendador colaborativo Item-Item (\texttt{recommend.py}).
+        \item Evaluación \textit{leave-one-out}: \textbf{Hit-Rate@10 = 0.205}.
       \end{itemize}
     \end{column}
   \end{columns}
@@ -175,148 +172,169 @@
 
 % ===================== 4 · DATOS BATCH =====================
 \section{Datos en batch}
-\begin{frame}{\pillB\ \ Esquema relacional en RDS PostgreSQL extraído por AWS Glue}
-  \scriptsize
-  \renewcommand{\arraystretch}{1.24}
-  \begin{tabularx}{\textwidth}{@{}>{\bfseries\ttfamily}p{31mm} X >{\raggedright\arraybackslash}p{32mm}@{}}
+\begin{frame}{\pillB\ \ Estado del producto en RDS PostgreSQL, extraído por AWS Glue}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.28}
+  \begin{tabularx}{\textwidth}{@{}>{\bfseries}p{30mm} X >{\raggedright\arraybackslash}p{30mm}@{}}
     \toprule
-    \textcolor{muted}{\rmfamily\mdseries Tabla en RDS} & \textcolor{muted}{Columnas y reglas implementadas} & \textcolor{muted}{Estrategia Glue}\\
+    \textcolor{muted}{\mdseries Entidad (RDS)} & \textcolor{muted}{Datos clave implementados} & \textcolor{muted}{Estrategia Glue}\\
     \midrule
-    track\newline genre / track\_genre & title, subgenre, mood\_tags (\texttt{TEXT[]}), language, bpm, track\_type, price, duration\_sec, keys S3 + catálogo de 20 géneros & Snapshot diario / Incremental (\texttt{updated\_at})\\
-    "user" & id, username, country, birth\_date, gender, ethnicity, created\_at, updated\_at (\textbf{sin} exponer email ni password) & Snapshot diario (columnas seguras)\\
-    artist\newline artist\_genre & stage\_name, bio, country, user\_id (opcional para artistas de catálogo) + relación M2M con \texttt{genre} & Snapshot diario\\
-    playlist\newline playlist\_track & name, description, tags (\texttt{TEXT[]}), cover\_image, is\_public; position con \texttt{UNIQUE DEFERRABLE} & Snapshot diario\\
-    "order"\newline order\_item & total\_amount, currency (USD), payment\_method, status (\texttt{COMPLETED}); \texttt{price\_paid} congelado & \textbf{Incremental CDC} por \texttt{updated\_at}\\
+    TRACK / GENRE & título, 20 géneros (M2M), subgénero, mood\_tags, idioma, bpm, precio, duración, keys S3 & snapshot / incremental\\
+    USER & username, país, birth\_date, género, etnia, created\_at (sin email ni password) & snapshot seguro\\
+    ARTIST & stage\_name, bio, país, géneros (M2M), vínculo opcional a USER & diario, incremental\\
+    PLAYLIST & nombre, descripción, tags (\texttt{TEXT[]}), portada, is\_public & diario, incremental\\
+    PLAYLIST\_TRACK & playlist\_id, track\_id, position (\texttt{DEFERRABLE}), added\_at & diario, incremental\\
+    ORDER / ITEM & total\_amount, moneda, método de pago, estado; \texttt{price\_paid} por canción & incremental (CDC)\\
     \bottomrule
   \end{tabularx}
 
-  \vspace{0.6em}
-  \textcolor{muted}{\textbf{Control CDC en RDS:} triggers \texttt{trg\_<tabla>\_set\_updated\_at} garantizan el avance de \texttt{updated\_at} incluso en cargas SQL; \texttt{etl\_watermark} registra \texttt{last\_value}, \texttt{rows\_loaded} y \texttt{status} por entidad.}
+  \vspace{0.8em}
+  \textcolor{muted}{\textbf{Control incremental:} triggers en PostgreSQL actualizan \texttt{updated\_at} y Glue registra el avance en \texttt{ETL\_WATERMARK}. Destino: zona RAW en S3.}
 \end{frame}
 
 % ===================== 5 · DATOS STREAMING =====================
 \section{Datos en streaming}
-\begin{frame}{\pillS\ \ Outbox \texttt{telemetry\_event} $\rightarrow$ Kafka (\texttt{tracks4u.events}) $\rightarrow$ S3 RAW}
+\begin{frame}{\pillS\ \ Eventos en vivo: Outbox \texttt{telemetry\_event} $\rightarrow$ Kafka $\rightarrow$ S3 RAW}
   \scriptsize
-  \renewcommand{\arraystretch}{1.18}
-  \begin{tabularx}{\textwidth}{@{}>{\ttfamily}p{29mm} X >{\raggedright\arraybackslash}p{16mm} >{\raggedright\arraybackslash}p{36mm}@{}}
+  \renewcommand{\arraystretch}{1.20}
+  \begin{tabularx}{\textwidth}{@{}>{\ttfamily}p{30mm} X >{\raggedright\arraybackslash}p{42mm}@{}}
     \toprule
-    \textcolor{muted}{\rmfamily Evento} & \textcolor{muted}{Payload validado (\texttt{telemetry/schemas.py})} & \textcolor{muted}{Peso ML} & \textcolor{muted}{Señal de negocio}\\
+    \textcolor{muted}{\rmfamily Evento} & \textcolor{muted}{Payload validado} & \textcolor{muted}{Uso y peso en ML}\\
     \midrule
-    play\_start        & track\_id, playlist\_id?                        & \textbf{+1} & Inicio de escucha\\
-    play\_progress     & track\_id, position\_sec, percent\_listened     & —           & Retención intra-canción\\
-    play\_complete     & track\_id, seconds\_listened                    & \textbf{+3} & Escucha completa\\
-    skip               & track\_id, position\_sec, percent\_listened     & \textbf{-2} & Rechazo / cálculo skip\_rate\\
-    pause / resume / seek & track\_id, position\_sec / from\_sec, to\_sec & —          & Interacción en reproductor\\
-    like / unlike      & track\_id                                       & \textbf{+4} & Preferencia explícita\\
-    follow / unfollow / share & artist\_id / track\_id, channel?         & —           & Viralidad y afinidad\\
-    playlist\_add      & playlist\_id, track\_id, position (servidor)    & \textbf{+4} & Curaduría y co-ocurrencia\\
-    search             & search\_id (UUID), query, results\_count, clicked\_track\_id? & — & Intención y CTR de búsqueda\\
-    purchase\_intent   & track\_id, stage (\texttt{checkout\_start|completed|failed}), order\_id?, price? & \textbf{+5} & Conversión monetaria\\
-    page\_view / dwell\_time & view, referrer? / seconds, max\_scroll\_pct? & —        & Engagement de sesión\\
+    play\_start        & track\_id, user\_id, entrypoint, playlist\_id & inicio de escucha (\textbf{peso +1})\\
+    play\_progress     & track\_id, position\_sec, percent\_listened   & retención intra-canción\\
+    play\_complete     & track\_id, seconds\_listened                  & escucha completa (\textbf{peso +3})\\
+    skip               & track\_id, position\_sec, percent\_listened   & rechazo y skip\_rate (\textbf{peso -2})\\
+    pause/resume/seek  & track\_id, position\_sec / from\_sec, to\_sec & patrón de reproducción\\
+    like/follow/share  & track\_id o artist\_id, channel               & preferencia explícita (\textbf{like +4})\\
+    playlist\_add      & playlist\_id, track\_id, position             & curaduría (\textbf{peso +4})\\
+    page\_view/dwell   & view, seconds, max\_scroll\_pct               & engagement de sesión\\
+    search             & search\_id, query, results\_count, clicked    & intención y descubrimiento\\
+    purchase\_intent   & track\_id, stage, order\_id, price            & conversión a compra (\textbf{peso +5})\\
     \bottomrule
   \end{tabularx}
 
-  \vspace{0.5em}
-  \textcolor{muted}{Columnas del CSV en \texttt{s3://.../raw/entity=play\_events/ingest\_date=AAAA-MM-DD/}: \texttt{event\_id, ts, session\_id, user\_id, event\_type, track\_id, device, geo, entrypoint, payload}.}
+  \vspace{0.6em}
+  \textcolor{muted}{CSV en \texttt{raw/entity=play\_events/}: \texttt{event\_id, ts, session\_id, user\_id, event\_type, track\_id, device, geo, entrypoint, payload}.}
 \end{frame}
 
 % ===================== 6 · DIAGRAMA DE CLASES =====================
 \section{Modelo de datos}
-\begin{frame}{Esquema relacional implementado en RDS (\texttt{database/schema.sql})}
+\begin{frame}{Modelo relacional en RDS PostgreSQL (\texttt{database/schema.sql})}
   \centering
-  \begin{adjustbox}{max width=\textwidth,max totalheight=0.75\textheight,center}
+  \begin{adjustbox}{max width=\textwidth,max totalheight=0.74\textheight,center}
   \begin{tikzpicture}
     % ---- fila superior ----
-    \umlclass{artist}{(0,0)}{ARTIST}{ink}{\PK id (BIGINT)\\ \FK user\_id (null)\\ stage\_name, bio\\ country\\ created\_at, updated\_at}
-    \umlclass{track}{(3.8,0)}{TRACK}{ink}{\PK id (BIGINT)\\ \FK artist\_id\\ title, subgenre\\ language, mood\_tags[]\\ bpm, track\_type, price\\ audio\_file, cover\_image\\ duration\_sec, updated\_at}
-    \umlclass{genre}{(7.6,0)}{GENRE + PUENTES}{ink}{\PK id, name (20 base)\\ --- track\_genre ---\\ \FK track\_id, \FK genre\_id\\ --- artist\_genre ---\\ \FK artist\_id, \FK genre\_id}
-    \umlclass{plt}{(11.4,0)}{PLAYLIST\_TRACK}{accent}{\PK id (BIGINT)\\ \FK playlist\_id\\ \FK track\_id\\ position (DEFERRABLE)\\ added\_at, updated\_at}
-    \node[umlw] (wm) at (15.2,0) {\textcolor{white}{\rmfamily\bfseries ETL\_WATERMARK}\nodepart{two}\PK id\\ entity\_name (UK)\\ watermark\_column\\ last\_value\\ last\_run\_at\\ rows\_loaded, status};
+    \umlclass{artist}{(0,0)}{ARTIST}{ink}{\PK id\\ \FK user\_id (null)\\ stage\_name, bio\\ country, artist\_genre\\ created\_at\\ updated\_at}
+    \umlclass{track}{(4.3,0)}{TRACK}{ink}{\PK id\\ \FK artist\_id\\ title, track\_genre\\ subgenre, language\\ mood\_tags[], bpm\\ track\_type, price\\ audio\_file, cover\_image\\ duration\_sec, created\_at\\ updated\_at}
+    \umlclass{plt}{(8.6,0)}{PLAYLIST\_TRACK}{accent}{\PK id\\ \FK playlist\_id\\ \FK track\_id\\ position, added\_at\\ updated\_at}
+    \node[umlw] (wm) at (12.9,0) {\textcolor{white}{\rmfamily\bfseries ETL\_WATERMARK}\nodepart{two}\PK id\\ entity\_name\\ watermark\_column\\ last\_value\\ last\_run\_at\\ rows\_loaded, status};
+    \node[verb,text width=30mm,align=center,anchor=north] at ([yshift=-1mm]wm.south) {una fila por entidad:\\ último updated\_at cargado};
 
     % ---- fila inferior ----
-    \umlclass{user}{(0,-4.3)}{"USER"}{ink}{\PK id (BIGINT)\\ username, email\\ password, app\_role\\ country, birth\_date\\ gender, ethnicity\\ created\_at, updated\_at}
-    \umlclass{ord}{(3.8,-4.3)}{"ORDER"}{ink}{\PK id (BIGINT)\\ \FK user\_id\\ total\_amount, currency\\ payment\_method\\ status (COMPLETED)\\ created\_at, updated\_at}
-    \umlclass{oit}{(7.6,-4.3)}{ORDER\_ITEM}{ink}{\PK id (BIGINT)\\ \FK order\_id\\ \FK track\_id\\ price\_paid, currency\\ created\_at, updated\_at}
-    \umlclass{pl}{(11.4,-4.3)}{PLAYLIST}{accent}{\PK id (BIGINT)\\ \FK owner\_id\\ name, description\\ tags[], cover\_image\\ is\_public\\ created\_at, updated\_at}
-    \node[umlo] (tel) at (15.2,-4.3) {\textcolor{white}{\rmfamily\bfseries TELEMETRY\_EVENT}\nodepart{two}\PK id (offset outbox)\\ event\_id (UUID UK)\\ event\_type, ts\\ session\_id, \FK user\_id\\ device, geo, entrypoint\\ payload (JSONB)\\ created\_at, acked\_at};
+    \umlclass{user}{(0,-4.2)}{USER}{ink}{\PK id\\ username, email\\ password, country\\ birth\_date\\ gender, ethnicity\\ created\_at\\ updated\_at}
+    \umlclass{ord}{(4.3,-4.2)}{ORDER}{ink}{\PK id\\ \FK user\_id\\ total\_amount, currency\\ payment\_method\\ status\\ created\_at\\ updated\_at}
+    \umlclass{oit}{(8.6,-4.2)}{ORDER\_ITEM}{ink}{\PK id\\ \FK order\_id\\ \FK track\_id\\ price\_paid, currency\\ updated\_at}
+    \umlclass{pl}{(12.9,-4.2)}{PLAYLIST}{accent}{\PK id\\ \FK owner\_id\\ name, description\\ tags[], cover\_image\\ is\_public\\ created\_at\\ updated\_at}
 
-    % ---- relaciones principales ----
-    \draw[rel] (user.north) -- node[verb,midway,left]{0..1} (artist.south);
-    \draw[rel] (artist.east) -- (track.west);
-    \draw[rel] (track.east) -- (genre.west);
-    \draw[rel] (genre.east) -- (plt.west);
-    \draw[rel] (user.east) -- (ord.west);
-    \draw[rel] (ord.east) -- (oit.west);
-    \draw[rel] (track.south) -- (oit.north);
-    \draw[rel] (plt.south) -- (pl.north);
+    % ---- carriles de ruteo ----
+    \coordinate (yA) at (0,-1.0);    % horizontales fila superior
+    \coordinate (yB) at (0,-5.2);    % horizontales fila inferior
+    \coordinate (g)  at (0,-3.6);    % carril entre filas
+    \coordinate (l1) at (0,-7.3);    % carril inferior
+    \coordinate (oiIn)  at ([xshift=-6mm]oit.north);
+    \coordinate (ptOut) at ([xshift=6mm]plt.south);
+
+    % USER 1 -- 0..1 ARTIST
+    \draw[rel] (user.north) -- node[mult,pos=0,above right]{1} node[mult,pos=1,below right]{0..1} node[verb,midway,left]{puede ser} (artist.south);
+    % ARTIST 1 -- 0..* TRACK
+    \draw[rel] (artist.east |- yA) -- node[mult,pos=0,above right]{1} node[mult,pos=1,above left]{0..*} node[verb,midway,below]{publica} (track.west |- yA);
+    % TRACK 1 -- 0..* PLAYLIST_TRACK
+    \draw[rel] (track.east |- yA) -- node[mult,pos=0,above right]{1} node[mult,pos=1,above left]{0..*} node[verb,midway,below]{aparece en} (plt.west |- yA);
+    % USER 1 -- 0..* ORDER
+    \draw[rel] (user.east |- yB) -- node[mult,pos=0,above right]{1} node[mult,pos=1,above left]{0..*} node[verb,midway,below]{realiza} (ord.west |- yB);
+    % ORDER 1 -- 1..* ORDER_ITEM
+    \draw[rel] (ord.east |- yB) -- node[mult,pos=0,above right]{1} node[mult,pos=1,above left]{1..*} node[verb,midway,below]{incluye} (oit.west |- yB);
+    % TRACK 1 -- 0..* ORDER_ITEM
+    \draw[rel] (track.south) -- (track.south |- g) -- node[verb,above]{comprado en} (oiIn |- g) -- (oiIn);
+    \node[mult,anchor=north west] at ([xshift=0.6mm]track.south) {1};
+    \node[mult,anchor=south east] at ([xshift=-0.6mm]oiIn) {0..*};
+    % PLAYLIST 1 -- 0..* PLAYLIST_TRACK
+    \draw[rel] (ptOut) -- (ptOut |- g) -- node[verb,above]{contiene} (pl.north |- g) -- (pl.north);
+    \node[mult,anchor=north west] at ([xshift=0.6mm]ptOut) {0..*};
+    \node[mult,anchor=south west] at ([xshift=0.6mm]pl.north) {1};
+    % USER 1 -- 0..* PLAYLIST
+    \draw[rel] (user.south) -- (user.south |- l1) -- node[verb,below]{crea} (pl.south |- l1) -- (pl.south);
+    \node[mult,anchor=north west] at ([xshift=0.6mm]user.south) {1};
+    \node[mult,anchor=north east] at ([xshift=-0.6mm]pl.south) {0..*};
   \end{tikzpicture}
   \end{adjustbox}
 
-  \vspace{0.25em}
+  \vspace{0.3em}
   {\tiny\color{muted}
-  \textcolor{ink}{\texttt{trig: updated\_at}}: 8 triggers en PostgreSQL actualizan \texttt{updated\_at} en cada \texttt{UPDATE} \quad
-  \textcolor{wmgreen}{\rule{2mm}{2mm}}\ \texttt{ETL\_WATERMARK}: control incremental de Glue \quad
-  \textcolor{accent}{\rule{2mm}{2mm}}\ \texttt{TELEMETRY\_EVENT}: outbox drenado por HTTP hacia Kafka}
+  Además en RDS: catálogo \texttt{genre} (20 géneros) con puentes \texttt{track\_genre} y \texttt{artist\_genre}, y tabla outbox \texttt{telemetry\_event} drenada hacia Kafka.}
 \end{frame}
 
 % ===================== 7 · ARQUITECTURA GENERAL =====================
-\section{Arquitectura en AWS}
-\begin{frame}{Flujo real desplegado en AWS (\texttt{us-east-1})}
+\section{Arquitectura}
+\begin{frame}{Arquitectura implementada en AWS (\texttt{us-east-1})}
   \centering
   \begin{adjustbox}{max width=\textwidth,max totalheight=0.8\textheight,center}
   \begin{tikzpicture}[font=\scriptsize]
-    \foreach \x/\lab in {0/Portal y Estado (VPC),3.8/Ingesta (Stream \& Batch),8.0/Data Lake en Amazon S3,12.4/Analítica y ML}
+    % encabezados de columna
+    \foreach \x/\lab in {0/Portal transaccional,3.7/Ingesta,7.8/Data Lake en S3,12.2/Consumo y ML}
       \node[font=\scriptsize\bfseries,text=muted] at (\x,3.0) {\lab};
 
     % 1 · portal
-    \node[card,text width=25mm,align=center] (web) at (0,1.6)
-      {\textbf{Django tracks4u}\\ {\color{muted}EC2 $\cdot$ S3 Media (.opus)\\ Outbox \texttt{/api/events/}}};
+    \node[card,text width=24mm,align=center] (web) at (0,1.6)
+      {\textbf{Django en EC2}\\ {\color{muted}S3 Media $\cdot$ Outbox}};
     \node[cylinder,shape border rotate=90,aspect=0.22,draw=ink,fill=white,line width=0.7pt,
-          minimum width=18mm,minimum height=11mm,align=center,font=\tiny] (db) at (0,-0.5) {RDS PostgreSQL\\ \texttt{tracks4u}};
+          minimum width=15mm,minimum height=11mm,align=center,font=\tiny] (db) at (0,-0.4) {RDS\\ Postgres};
     \begin{scope}[on background layer]
       \node[draw=line,dashed,rounded corners=6pt,fit=(web)(db),inner sep=2.5mm] (portal) {};
     \end{scope}
 
     % 2 · ingesta
-    \node[card,text width=26mm,align=center,draw=accent,fill=accent!7] (broker) at (3.8,1.6)
-      {\textbf{\color{accent}Kafka en EC2}\\ {\color{muted}\texttt{producer.py} (\texttt{/drain/})\\ Topic \texttt{tracks4u.events}\\ \texttt{consumer.py} (dedup)}};
-    \node[card,text width=26mm,align=center,draw=batch,fill=batch!7] (ext) at (3.8,-0.5)
-      {\textbf{\color{batch}AWS Glue + Step Fn}\\ {\color{muted}JDBC en VPC $\cdot$ SSL\\ \texttt{etl\_watermark}}};
+    \node[card,text width=24mm,align=center,draw=accent,fill=accent!7] (broker) at (3.7,1.6)
+      {\textbf{\color{accent}Apache Kafka}\\ {\color{muted}producer $\cdot$ consumer}};
+    \node[card,text width=24mm,align=center,draw=batch,fill=batch!7] (ext) at (3.7,-0.4)
+      {\textbf{\color{batch}AWS Glue}\\ {\color{muted}CDC por watermark}};
 
     % 3 · data lake
-    \node[cardsoft,text width=34mm,minimum height=34mm] (lake) at (8.0,0.65) {};
-    \node[card,text width=29mm,align=center,inner sep=3pt] (raw) at (8.0,1.5) {\textbf{RAW} {\color{muted}$\cdot$ CSV particionado}};
-    \node[card,text width=29mm,align=center,inner sep=3pt] (cur) at (8.0,0.65) {\textbf{CURATED} {\color{muted}$\cdot$ Parquet limpio}};
-    \node[card,text width=29mm,align=center,inner sep=3pt,draw=accent,fill=accent!7] (ana) at (8.0,-0.2) {\textbf{\color{accent}ANALYTICS} {\color{muted}$\cdot$ Parquet ML}};
-    \node[text=muted,font=\tiny] at (8.0,-0.82) {\texttt{s3://tracks4u-datalake-463790652932-us-east-1}};
+    \node[cardsoft,text width=32mm,minimum height=33mm] (lake) at (7.8,0.68) {};
+    \node[card,text width=27mm,align=center,inner sep=3pt] (raw) at (7.8,1.48) {\textbf{RAW} {\color{muted}$\cdot$ CSV crudo}};
+    \node[card,text width=27mm,align=center,inner sep=3pt] (cur) at (7.8,0.68) {\textbf{CURATED} {\color{muted}$\cdot$ Parquet limpio}};
+    \node[card,text width=27mm,align=center,inner sep=3pt,draw=accent,fill=accent!7] (ana) at (7.8,-0.12) {\textbf{\color{accent}ANALYTICS} {\color{muted}$\cdot$ Parquet ML}};
+    \node[text=muted,font=\tiny] at (7.8,-0.72) {s3://tracks4u-datalake-...};
 
     % 4 · consumo
-    \node[card,text width=27mm,align=center] (dw) at (12.4,1.6)
-      {\textbf{Dashboard Charts}\\ {\color{muted}Ventas por día\\ Ingresos por género\\ Top tracks}};
-    \node[card,text width=27mm,align=center,draw=accent,fill=accent!7] (ml) at (12.4,-0.2)
-      {\textbf{\color{accent}\texttt{recommend.py}}\\ {\color{muted}Item-Item Coseno\\ \texttt{recommendations}\\ \texttt{user\_profile} $\cdot$ \texttt{metrics}}};
+    \node[card,text width=27mm,align=center] (dw) at (12.2,1.6)
+      {\textbf{Analítica y BI}\\ {\color{muted}Dashboard Charts}\\ {\color{muted}ventas por género}};
+    \node[card,text width=27mm,align=center,draw=accent,fill=accent!7] (ml) at (12.2,-0.12)
+      {\textbf{\color{accent}Item-Item ML}\\ {\color{muted}\texttt{recommend.py} (Docker)}};
 
     % flechas
-    \draw[flow] (web) -- (db);
-    \draw[flowS] (web.east) -- node[above,font=\tiny,text=accent]{drain + ack} (broker.west);
-    \draw[flowB] (db.east) -- node[below,font=\tiny,text=batch]{SELECT} (ext.west);
+    \draw[flowS] (web.east) -- node[above,font=\tiny,text=accent]{drain/ack} (broker.west);
+    \draw[flowB] (db.east) -- node[below,font=\tiny,text=batch]{JDBC} (ext.west);
     \draw[flowS] (broker.east) -- (broker.east -| raw.west);
-    \draw[flowB] (ext.east) -- (5.9,-0.5) |- ([yshift=-1.2mm]raw.west);
+    \draw[flowB] (ext.east) -- (5.75,-0.4) |- ([yshift=-1.2mm]raw.west);
     \draw[flow] (raw) -- (cur);
-    \draw[flowS] (raw.east) -- ++(0.35,0) |- (ml.west);
-    \draw[flow,{Stealth[length=2mm]}-{Stealth[length=2mm]}] (ana.east) -- (ml.west);
-    \draw[flow] (db.south) -- ++(0,-0.55) -| (dw.south);
+    \draw[flow] (cur) -- (ana);
+    \draw[flow] (lake.east |- dw) -- (dw.west);
+    \draw[flow,{Stealth[length=2mm]}-{Stealth[length=2mm]}] (lake.east |- ml) -- (ml.west);
+    \draw[flowS,dashed] (ml.south) -- ++(0,-1.0) -| node[pos=0.25,below,font=\tiny,text=accent]{Top-10 recomendaciones y perfiles en Parquet} (portal.south);
 
-    \node[cardsoft,text width=132mm,align=center,font=\tiny] at (6.3,-2.35)
-      {\textbf{Seguridad e Infraestructura:} IAM Role (\texttt{LabRole}) en EC2 sin credenciales estáticas $\cdot$ RDS en subred privada con \texttt{sslmode=require} $\cdot$ S3 privado con URLs firmadas};
+    % orquestación y procesamiento
+    \node[cardsoft,text width=128mm,align=center,font=\tiny] at (6.3,-2.45)
+      {\textbf{Orquestación:} Step Functions + EventBridge $\cdot$ Docker Compose \qquad
+       \textbf{Seguridad:} IAM Role (\texttt{LabRole}) $\cdot$ RDS con SSL};
   \end{tikzpicture}
   \end{adjustbox}
 \end{frame}
 
 % ===================== 8 · ZONAS DEL DATA LAKE =====================
 \section{Arquitectura del data lake}
-\begin{frame}{Zonas y particionado en \texttt{tracks4u-datalake-463790652932-us-east-1}}
+\begin{frame}{Zonas y particionado en Amazon S3}
   \centering
   \begin{adjustbox}{max width=\textwidth,max totalheight=0.8\textheight,center}
   \begin{tikzpicture}[font=\scriptsize]
@@ -324,84 +342,78 @@
              chip/.style={draw=line,fill=soft,rounded corners=3pt,inner sep=3pt,font=\scriptsize\ttfamily}}
 
     \node[zone] (raw) at (0,0) {%
-      \textcolor{rawc}{\bfseries RAW}\\ \textbf{Datos crudos (CSV)}\\[3pt]
-      \textcolor{muted}{$\bullet$ \texttt{entity=play\_events} (Kafka)}\\
-      \textcolor{muted}{$\bullet$ Tablas de negocio (Glue)}\\
-      \textcolor{muted}{$\bullet$ Deduplicado en consumer}\\
-      \textcolor{muted}{$\bullet$ Commit Kafka post-S3}};
+      \textcolor{rawc}{\bfseries RAW}\\ \textbf{Datos crudos}\\[3pt]
+      \textcolor{muted}{$\bullet$ Formato CSV}\\
+      \textcolor{muted}{$\bullet$ \texttt{play\_events} desde Kafka}\\
+      \textcolor{muted}{$\bullet$ Tablas RDS desde Glue}};
     \node[zone] (cur) at (5.0,0) {%
-      \textcolor{batch}{\bfseries CURATED}\\ \textbf{Datos limpios (Parquet)}\\[3pt]
-      \textcolor{muted}{$\bullet$ Tipado y validado}\\
-      \textcolor{muted}{$\bullet$ Compresión columnar}\\
-      \textcolor{muted}{$\bullet$ Cruce catálogo + órdenes}};
+      \textcolor{batch}{\bfseries CURATED}\\ \textbf{Datos limpios}\\[3pt]
+      \textcolor{muted}{$\bullet$ Formato Parquet}\\
+      \textcolor{muted}{$\bullet$ Deduplicado y tipado}\\
+      \textcolor{muted}{$\bullet$ Listo para cruces y BI}};
     \node[zone,draw=accent,fill=accent!5] (ana) at (10.0,0) {%
-      \textcolor{accent}{\bfseries ANALYTICS}\\ \textbf{Salidas ML (Parquet)}\\[3pt]
-      \textcolor{muted}{$\bullet$ \texttt{entity=recommendations}}\\
-      \textcolor{muted}{$\bullet$ \texttt{entity=user\_profile}}\\
-      \textcolor{muted}{$\bullet$ \texttt{entity=model\_metrics}}\\
-      \textcolor{muted}{$\bullet$ Top-10 por usuario + \texttt{skip\_rate}}};
+      \textcolor{accent}{\bfseries ANALYTICS}\\ \textbf{Resultados de ML}\\[3pt]
+      \textcolor{muted}{$\bullet$ \texttt{recommendations} (Top-10)}\\
+      \textcolor{muted}{$\bullet$ \texttt{user\_profile} (\texttt{skip\_rate})}\\
+      \textcolor{muted}{$\bullet$ \texttt{model\_metrics} (Parquet)}};
 
     \coordinate (zy) at (0,-1.3);
     \draw[flow] (raw.east |- zy) -- (cur.west |- zy);
     \draw[flow] (cur.east |- zy) -- (ana.west |- zy);
 
     % jerarquía de particiones
-    \node[font=\scriptsize\bfseries,anchor=west] at (-2.1,-3.55) {Particionado estándar en S3: zona / entidad / fecha de ingesta};
-    \node[chip,anchor=west] (c1) at (-2.1,-4.25) {s3://tracks4u-datalake-.../};
-    \node[chip,right=4mm of c1] (c2) {<zona>/};
-    \node[chip,right=4mm of c2,draw=accent,text=accent] (c3) {entity=<entidad>/};
-    \node[chip,right=4mm of c3,draw=batch,text=batch] (c4) {ingest\_date=AAAA-MM-DD/};
-    \node[chip,right=4mm of c4] (c5) {part-0000.parquet};
+    \node[font=\scriptsize\bfseries,anchor=west] at (-2.1,-3.55) {Particionado: primero por entidad, luego por fecha de ingesta};
+    \node[chip,anchor=west] (c1) at (-2.1,-4.25) {s3://tracks4u-datalake/};
+    \node[chip,right=5mm of c1] (c2) {<zona>/};
+    \node[chip,right=5mm of c2,draw=accent,text=accent] (c3) {entity=<entidad>/};
+    \node[chip,right=5mm of c3,draw=batch,text=batch] (c4) {ingest\_date=AAAA-MM-DD/};
+    \node[chip,right=5mm of c4] (c5) {archivo .csv / .parquet};
     \draw[flow] (c1) -- (c2); \draw[flow] (c2) -- (c3); \draw[flow] (c3) -- (c4); \draw[flow] (c4) -- (c5);
+    \node[font=\tiny,text=accent,below=1mm of c3] {nivel 1: entidad};
+    \node[font=\tiny,text=batch,below=1mm of c4] {nivel 2: fecha de ingesta};
 
-    % ejemplos de rutas reales
-    \node[cardsoft,anchor=north west,text width=139mm,align=left,font=\tiny\ttfamily] at (-2.1,-4.95) {%
+    % ejemplos de rutas
+    \node[cardsoft,anchor=north west,text width=139mm,align=left,font=\tiny\ttfamily] at (-2.1,-5.1) {%
       raw/\textcolor{accent}{entity=play\_events}/\textcolor{batch}{ingest\_date=2026-11-18}/events\_1763495000000.csv\\
-      analytics/\textcolor{accent}{entity=recommendations}/\textcolor{batch}{ingest\_date=2026-11-18}/part-0000.parquet \quad (2\,000 filas: Top-10 $\times$ 200 usuarios)\\
-      analytics/\textcolor{accent}{entity=user\_profile}/\textcolor{batch}{ingest\_date=2026-11-18}/part-0000.parquet \qquad (200 filas: conteos + skip\_rate)\\
-      analytics/\textcolor{accent}{entity=model\_metrics}/\textcolor{batch}{ingest\_date=2026-11-18}/part-0000.parquet \qquad (Hit-Rate@10 modelo vs popular vs azar)};
+      analytics/\textcolor{accent}{entity=recommendations}/\textcolor{batch}{ingest\_date=2026-11-18}/part-0000.parquet\\
+      analytics/\textcolor{accent}{entity=user\_profile}/\textcolor{batch}{ingest\_date=2026-11-18}/part-0000.parquet};
   \end{tikzpicture}
   \end{adjustbox}
+
+  \vspace{0.3em}
+  {\scriptsize\itshape\color{muted} Bucket real en AWS: \texttt{s3://tracks4u-datalake-463790652932-us-east-1/}.}
 \end{frame}
 
-% ===================== 9 · MODELO DE RECOMENDACIÓN Y RESULTADOS =====================
-\section{Machine Learning en ANALYTICS}
+% ===================== 9 · RECOMENDADOR ML =====================
+\section{Machine Learning}
 \begin{frame}{\pillM\ \ Recomendador Colaborativo Item-Item y Evaluación}
   \footnotesize
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.52\textwidth}
       \textbf{\color{accent}Cómo funciona \texttt{recommend.py}}
-      \begin{itemize}\setlength{\itemsep}{2pt}
-        \item \textbf{Matriz de afinidad ($M$):} agrega eventos de \texttt{raw/entity=play\_events/} ponderados por intención ($+1$ play, $+3$ complete, $+4$ like/playlist, $+5$ purchase, $-2$ skip) con $\text{clip}(M \ge 0)$.
-        \item \textbf{Similitud Item-Item ($S$):} similitud coseno entre vectores de canciones ($M^T$), puntaje $R = M \cdot \text{sim}(M^T)$ y enmascarado ($-\infty$) de canciones ya escuchadas.
-        \item \textbf{Limpieza híbrida:} extrae \texttt{track\_id} desde \texttt{payload} JSON, unifica IDs reales y sintéticos y descarta anónimos.
-        \item \textbf{Protocolo Leave-One-Out:} oculta 1 canción positiva por usuario y evalúa \textbf{Hit-Rate@10}.
+      \begin{itemize}\setlength{\itemsep}{3pt}
+        \item \textbf{Matriz usuario $\times$ canción ($M$):} pondera eventos de \texttt{play\_events} ($+1$ start, $+3$ complete, $+4$ like/playlist, $+5$ compra, $-2$ skip) con $\text{clip}(M \ge 0)$.
+        \item \textbf{Similitud Item-Item:} similitud coseno entre canciones, puntaje $R = M \cdot \text{sim}(M^T)$ y exclusión de canciones ya escuchadas.
+        \item \textbf{Evaluación Leave-One-Out:} oculta 1 canción positiva por usuario y mide \textbf{Hit-Rate@10}.
       \end{itemize}
     \end{column}
-    \begin{column}{0.45\textwidth}
-      \textbf{\color{accent}Resultados reales (9\,000 eventos, 200 usuarios, 300 canciones)}
-      \vspace{0.3em}
+    \begin{column}{0.44\textwidth}
+      \textbf{\color{accent}Resultados (200 usuarios, 300 canciones)}
+      \vspace{0.4em}
 
-      \renewcommand{\arraystretch}{1.25}
+      \renewcommand{\arraystretch}{1.3}
       \begin{tabularx}{\textwidth}{@{}X r@{}}
         \toprule
-        \textcolor{muted}{Método evaluado} & \textcolor{muted}{Hit-Rate@10}\\
+        \textcolor{muted}{Método} & \textcolor{muted}{Hit-Rate@10}\\
         \midrule
-        \textbf{\color{accent}Modelo Item-Item (Coseno)} & \textbf{\color{accent}0.205 (20.5\%)}\\
+        \textbf{\color{accent}Item-Item (Coseno)} & \textbf{\color{accent}0.205 (20.5\%)}\\
         Baseline Más Populares & 0.030 (3.0\%)\\
-        Referencia Aleatoria ($10/300$) & 0.033 (3.3\%)\\
+        Azar ($10/300$) & 0.033 (3.3\%)\\
         \bottomrule
       \end{tabularx}
 
-      \vspace{0.5em}
-      {\scriptsize\color{muted}El modelo Item-Item supera en \textbf{$6.8\times$} al ranking de popularidad global al capturar los clusters de género de cada oyente.}
-
-      \vspace{0.4em}
-      \textbf{\color{batch}\scriptsize Entregables en \texttt{s3://.../analytics/}}
-      {\tiny\ttfamily\par
-      $\bullet$ entity=recommendations (user\_id, rank, track\_id, score)\par
-      $\bullet$ entity=user\_profile (conteos por evento + skip\_rate)\par
-      $\bullet$ entity=model\_metrics (hit\_rate\_modelo, popular, azar)}
+      \vspace{0.6em}
+      {\scriptsize\color{muted}Supera en \textbf{$6.8\times$} al ranking de popularidad global y escribe 3 entidades Parquet en \texttt{s3://.../analytics/}.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -409,8 +421,8 @@
 % ===================== 10 · CIERRE =====================
 \begin{frame}[plain]
   \vfill
-  \kick{De punta a punta en AWS}
-  {\color{ink}\LARGE tracks4u captura cada interacción en Django y RDS,\\ la transporta por Glue y Kafka hacia Amazon S3,\\ y la convierte en recomendaciones con Machine Learning.}\par
+  \kick{En una frase}
+  {\color{ink}\LARGE tracks4u deja de ser solo un portal\\ y empieza a aprender de cada escucha,\\ cada playlist y cada compra en AWS.}\par
   \vspace{0.8em}{\color{accent}\rule{3cm}{2.5pt}}
   \vfill
 \end{frame}
