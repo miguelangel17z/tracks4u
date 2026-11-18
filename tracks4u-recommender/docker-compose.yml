@@ -1,0 +1,10 @@
+services:
+  recommender:
+    build: .
+    network_mode: "host"
+    environment:
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+      - S3_BUCKET=${S3_BUCKET:-tracks4u-datalake-463790652932-us-east-1}
+      - GENERATE_SYNTHETIC=${GENERATE_SYNTHETIC:-1}
+    volumes:
+      - ./datalake:/app/datalake

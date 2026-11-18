@@ -47,6 +47,7 @@ flowchart LR
 | `database/rds/` | Scripts `grants.sql` (permisos de aplicación e ingesta) y `verify.sql` (validación del despliegue en RDS). |
 | `cancionesCovers/tracks4u/` | Archivos multimedia locales de las 36 canciones (`.opus`) y 33 portadas (`.webp`, `.jpg`, `.jpeg`, `.png`) listos para subirse a S3 con `python manage.py sync_seed_media`. |
 | `tracks4u-streaming/tracks4u-streaming/` | Pipeline de streaming con Kafka (`docker-compose.yml`, `producer.py` conectado al outbox de Django y `consumer.py` que escribe lotes CSV en S3 zona RAW). |
+| `tracks4u-recommender/` | Módulo ML de recomendación musical Item-Item (`recommend.py`, `gen_synthetic.py`, `check_output.py`, `Dockerfile` y `docker-compose.yml` aislado que lee de RAW y escribe Parquet en S3 zona ANALYTICS sin afectar Django ni Kafka). |
 
 ---
 
@@ -352,4 +353,22 @@ Desde la EC2 con acceso a RDS (crea automáticamente una base temporal `test_tra
 cd ~/tracks4uProject/tracks4u
 source ../.venv/bin/activate
 python manage.py test core users tracks playlists payment telemetry charts --keepdb
+```
+
+---
+
+## 6. Ejecutar el Módulo de Recomendación Musical (Zona ANALYTICS en S3)
+
+El módulo `tracks4u-recommender/` está completamente aislado en su propio contenedor y carpeta: **no expone puertos ni reinicia ni interfiere con Django ni con Kafka**. Usa `network_mode: "host"` para tomar automáticamente el IAM Role (`LabRole`) de la EC2, lee los CSV de `s3://tracks4u-datalake-463790652932-us-east-1/raw/entity=play_events/`, entrena el recomendador colaborativo Item-Item (similitud coseno), evalúa `Hit-rate@10` frente al baseline popular y al azar, y escribe los Parquet en `s3://tracks4u-datalake-463790652932-us-east-1/analytics/entity={recommendations,user_profile,model_metrics}/ingest_date=AAAA-MM-DD/part-0000.parquet`:
+
+```bash
+cd ~/tracks4uProject
+git pull origin main
+cd tracks4u-recommender
+docker compose up --build
+```
+
+Para verificar los archivos Parquet publicados en S3:
+```bash
+aws s3 ls s3://tracks4u-datalake-463790652932-us-east-1/analytics/ --recursive
 ```
