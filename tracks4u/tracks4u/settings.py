@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "tracks",
     "playlists",
     "payment",
+    "telemetry",
     "rest_framework",
     "charts",
     "sistema_client",
@@ -68,6 +69,11 @@ MIDDLEWARE = [
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [],
     "DEFAULT_PERMISSION_CLASSES": [],
+    "DEFAULT_THROTTLE_CLASSES": [],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "300/min",
+        "user": "600/min",
+    },
 }
 
 ROOT_URLCONF = "tracks4u.urls"
@@ -151,6 +157,8 @@ LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
 TIME_ZONE = "UTC"
 USE_TZ = True
 
+from celery.schedules import crontab
+
 # Celery
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379/0")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379/0")
@@ -159,6 +167,12 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TIMEZONE = "America/Bogota"
 CELERY_ENABLE_UTC = True
+CELERY_BEAT_SCHEDULE = {
+    "purge-acked-telemetry": {
+        "task": "telemetry.purge_acked_events",
+        "schedule": crontab(hour=3, minute=0),
+    },
+}
 
 # Telemetría
 TELEMETRY_DRAIN_TOKEN = os.environ.get("TELEMETRY_DRAIN_TOKEN", "")

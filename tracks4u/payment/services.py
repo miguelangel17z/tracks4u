@@ -6,6 +6,7 @@ from django.db import transaction
 
 from payment.domain.builders import OrderBuilder
 from payment.models import Order, OrderItem
+from telemetry.services import emit_event
 from tracks.models import Track
 from users.models import User
 
@@ -21,54 +22,100 @@ class OrderService:
         track_ids: List[int],
         payment_method: str,
         currency: str = "USD",
+        session_id: str = "server",
+        device: str = "unknown",
+        entrypoint: str = "unknown",
     ) -> Order:
         if not track_ids:
             raise ValueError("At least one track_id is required.")
 
-        with transaction.atomic():
-            tracks_by_id = {
-                t.id: t
-                for t in Track.objects.filter(id__in=track_ids).select_related("artist")
-            }
-            missing = [tid for tid in set(track_ids) if tid not in tracks_by_id]
-            if missing:
-                raise ValueError(f"Tracks not found: {sorted(missing)}")
+        effective_session = (session_id or "server")[:64]
+        effective_device = device or "unknown"
+        effective_entrypoint = entrypoint or "unknown"
 
-            ordered_tracks = [tracks_by_id[tid] for tid in track_ids]
+        try:
+            with transaction.atomic():
+                tracks_by_id = {
+                    t.id: t
+                    for t in Track.objects.filter(id__in=track_ids).select_related("artist")
+                }
+                missing = [tid for tid in set(track_ids) if tid not in tracks_by_id]
+                if missing:
+                    raise ValueError(f"Tracks not found: {sorted(missing)}")
 
-            order_data = (
-                OrderBuilder()
-                .para_user(user)
-                .para_tracks(ordered_tracks)
-                .con_pago(payment_method=payment_method, currency=currency)
-                .construir()
-            )
+                ordered_tracks = [tracks_by_id[tid] for tid in track_ids]
 
-            order = Order.objects.create(
-                user=order_data["user"],
-                total_amount=order_data["total_amount"],
-                currency=order_data["currency"],
-                payment_method=order_data["payment_method"],
-                status="PLACED",
-            )
-
-            for track in order_data["tracks"]:
-                OrderItem.objects.create(
-                    order=order,
-                    track=track,
-                    price_paid=track.price,
-                    currency=order_data["currency"],
+                order_data = (
+                    OrderBuilder()
+                    .para_user(user)
+                    .para_tracks(ordered_tracks)
+                    .con_pago(payment_method=payment_method, currency=currency)
+                    .construir()
                 )
 
-            # Pago simulado: pasa a COMPLETED en la misma transacción
-            order.status = "COMPLETED"
-            order.save(update_fields=["status", "updated_at"])
+                order = Order.objects.create(
+                    user=order_data["user"],
+                    total_amount=order_data["total_amount"],
+                    currency=order_data["currency"],
+                    payment_method=order_data["payment_method"],
+                    status="PLACED",
+                )
 
-            transaction.on_commit(
-                lambda: OrderService._notificar_orden_completada(order)
-            )
+                for track in order_data["tracks"]:
+                    OrderItem.objects.create(
+                        order=order,
+                        track=track,
+                        price_paid=track.price,
+                        currency=order_data["currency"],
+                    )
 
-            return order
+                # Pago simulado: pasa a COMPLETED en la misma transacción
+                order.status = "COMPLETED"
+                order.save(update_fields=["status", "updated_at"])
+
+                for track in order_data["tracks"]:
+                    emit_event(
+                        "purchase_intent",
+                        user=user,
+                        session_id=effective_session,
+                        device=effective_device,
+                        entrypoint=effective_entrypoint,
+                        payload={
+                            "track_id": track.id,
+                            "stage": "completed",
+                            "order_id": order.id,
+                            "price": float(track.price),
+                        },
+                    )
+
+                transaction.on_commit(
+                    lambda: OrderService._notificar_orden_completada(order)
+                )
+
+                return order
+        except ValueError:
+            # Emite purchase_intent stage="failed" fuera del bloque atomic revertido
+            for tid in track_ids:
+                if isinstance(tid, int) and not isinstance(tid, bool) and tid >= 1:
+                    try:
+                        emit_event(
+                            "purchase_intent",
+                            user=user,
+                            session_id=effective_session,
+                            device=effective_device,
+                            entrypoint=effective_entrypoint,
+                            payload={
+                                "track_id": tid,
+                                "stage": "failed",
+                            },
+                        )
+                    except Exception as emit_exc:
+                        logger.warning(
+                            "No se pudo emitir evento purchase_intent failed para track %s: %s",
+                            tid,
+                            emit_exc,
+                        )
+            raise
 
     @staticmethod
     def _notificar_orden_completada(order: Order) -> None:
@@ -129,7 +176,7 @@ class OrderService:
         )
 
     @staticmethod
-    def obtener_orden_usuario(user: User, order_id: int) -> Optional[Order]:
+    def obtener_orden_usuario(user: User, order_id: int) -> Optional[Order] | None:
         return (
             Order.objects.filter(id=order_id, user=user)
             .prefetch_related("items__track__artist")

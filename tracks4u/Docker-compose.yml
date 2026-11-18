@@ -41,6 +41,24 @@ services:
       - DJANGO_SETTINGS_MODULE=tracks4u.settings
       - SCHEMA_SQL_PATH=/database/schema.sql
 
+  celery-beat:
+    build: .
+    command: celery -A tracks4u beat --loglevel=info
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - ../database:/database:ro
+    depends_on:
+      - redis
+      - django-web
+    environment:
+      - NOTIFICATION_MODE=REAL
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DJANGO_SETTINGS_MODULE=tracks4u.settings
+      - SCHEMA_SQL_PATH=/database/schema.sql
+
   redis:
     image: redis:7-alpine
     expose:

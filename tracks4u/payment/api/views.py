@@ -26,6 +26,9 @@ class OrderCreateView(APIView):
                 user=request.user,
                 track_ids=serializer.validated_data["track_ids"],
                 payment_method=serializer.validated_data["payment_method"],
+                session_id=request.headers.get("X-Session-Id") or "server",
+                device=request.headers.get("X-Device") or "unknown",
+                entrypoint=request.headers.get("X-Entrypoint") or "unknown",
             )
             return Response(
                 OrderSerializer(order, context={"request": request}).data,
