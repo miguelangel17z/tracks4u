@@ -1,7 +1,8 @@
-from django.core.mail import send_mail
-from django.conf import settings
-from typing import Dict, Any
 import logging
+from typing import Any, Dict
+
+from django.conf import settings
+from django.core.mail import send_mail
 
 from .base import BaseNotifier
 
@@ -9,34 +10,31 @@ logger = logging.getLogger(__name__)
 
 
 class EmailNotifier(BaseNotifier):
-    """
-    Notificador que envía emails reales.
-    """
-    
+    """Notificador que envía emails reales."""
+
     def __init__(self, template_type: str):
         self.template_type = template_type
         self.templates = {
-            'track_uploaded': {
-                'subject': 'Nuevo Track Subido - {title}',
-                'message': '''
+            "track_uploaded": {
+                "subject": "Nuevo Track Subido - {title}",
+                "message": """
 Hola Admin,
 
 Se ha subido un nuevo track al sistema:
 
 Título: {title}
+Artista: {artist}
 BPM: {bpm}
+Géneros: {genres}
 Fecha: {created_at}
-Género: {genre}
-
-    
 
 Saludos,
 Sistema Tracks4U
-                '''.strip()
+                """.strip(),
             },
-            'track_sold': {
-                'subject': 'Track Vendido - {title}',
-                'message': '''
+            "track_sold": {
+                "subject": "Track Vendido - {title}",
+                "message": """
 ¡Felicidades!
 
 Tu track "{title}" ha sido vendido.
@@ -46,40 +44,38 @@ Fecha: {purchase_date}
 
 Saludos,
 Sistema Tracks4U
-                '''.strip()
+                """.strip(),
             },
-            'license_created': {
-                'subject': 'Nueva Licencia Generada - {track_title}',
-                'message': '''
-Hola,
+            "order_completed": {
+                "subject": "Orden Completada #{order_id}",
+                "message": """
+Hola {user_username},
 
-Se ha generado una nueva licencia:
+Tu compra se ha procesado exitosamente:
 
-Track: {track_title}
-Usuario: {user_username}
-Tipo de Licencia: {license_type}
+Orden: #{order_id}
+Canciones: {items}
+Total pagado: {total_amount} {currency}
 Fecha: {created_at}
 
 Saludos,
 Sistema Tracks4U
-                '''.strip()
-            }
+                """.strip(),
+            },
         }
-    
+
     def enviar(self, destinatario: str, contexto: Dict[str, Any]) -> bool:
-        """
-        Envía un email usando el template configurado.
-        """
+        """Envía un email usando el template configurado."""
         try:
             template = self.templates.get(self.template_type)
-            
+
             if not template:
-                logger.error(f"Template no encontrado: {self.template_type}")
+                logger.error("Template no encontrado: %s", self.template_type)
                 return False
-            
-            subject = template['subject'].format(**contexto)
-            message = template['message'].format(**contexto)
-            
+
+            subject = template["subject"].format(**contexto)
+            message = template["message"].format(**contexto)
+
             send_mail(
                 subject=subject,
                 message=message,
@@ -87,13 +83,13 @@ Sistema Tracks4U
                 recipient_list=[destinatario],
                 fail_silently=False,
             )
-            
-            logger.info(f"Email enviado a {destinatario} - {self.template_type}")
+
+            logger.info("Email enviado (%s)", self.template_type)
             return True
-            
-        except KeyError as e:
-            logger.error(f"Falta variable en contexto: {e}")
+
+        except KeyError as exc:
+            logger.error("Falta variable en contexto de email (%s): %s", self.template_type, exc)
             return False
-        except Exception as e:
-            logger.error(f"Error al enviar email: {e}")
+        except Exception as exc:
+            logger.error("Error al enviar email (%s): %s", self.template_type, exc)
             return False

@@ -1,16 +1,37 @@
-from typing import Optional, List
+import logging
+from typing import List, Optional
+
 from django.conf import settings
-from .models import Track
+from django.db import transaction
+
 from .infra.notifications.factory import NotificationFactory
+from .models import Artist, Genre, Track, TrackGenre
+
+logger = logging.getLogger(__name__)
 
 
 class TrackCreatorService:
     """Responsable de orquestar la creación de un track."""
 
     @staticmethod
-    def crear_track(track: Track, notificar_admin: bool = True) -> Track:
-        if notificar_admin:
-            TrackNotificationService.notificar_track_subido(track)
+    def crear_track(
+        track: Track,
+        genre_ids: Optional[List[int]] = None,
+        notificar_admin: bool = True,
+    ) -> Track:
+        with transaction.atomic():
+            if genre_ids is not None:
+                genres = list(Genre.objects.filter(id__in=genre_ids))
+                if not genres:
+                    raise ValueError("A track must have at least one valid genre.")
+                TrackGenre.objects.filter(track=track).delete()
+                for g in genres:
+                    TrackGenre.objects.get_or_create(track=track, genre=g)
+
+            if notificar_admin:
+                transaction.on_commit(
+                    lambda: TrackNotificationService.notificar_track_subido(track)
+                )
         return track
 
 
@@ -22,21 +43,32 @@ class TrackNotificationService:
         try:
             notificador = NotificationFactory.crear_notificador(
                 tipo="email",
-                template_type="track_uploaded"
+                template_type="track_uploaded",
+            )
+            artist_name = (
+                track.artist.stage_name
+                if getattr(track, "artist", None)
+                else "Unknown Artist"
+            )
+            genre_names = ", ".join(g.name for g in track.genres.all()) or "Sin género"
+            created_str = (
+                track.created_at.strftime("%Y-%m-%d %H:%M:%S")
+                if track.created_at
+                else ""
             )
             contexto = {
                 "title": track.title,
-                "bpm": track.bpm,
-                "genre": track.genre,
-                "sales_count": track.sales_count,
-                "created_at": track.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "artist": artist_name,
+                "bpm": track.bpm or "N/A",
+                "genres": genre_names,
+                "created_at": created_str,
             }
             return notificador.enviar(
                 destinatario=settings.ADMIN_EMAIL,
-                contexto=contexto
+                contexto=contexto,
             )
-        except Exception as e:
-            print(f"Error al enviar notificación: {e}")
+        except Exception as exc:
+            logger.error("Error al enviar notificación de track subido: %s", exc)
             return False
 
 
@@ -45,15 +77,21 @@ class TrackQueryService:
 
     @staticmethod
     def obtener_por_id(track_id: int) -> Optional[Track]:
-        try:
-            return Track.objects.get(id=track_id)
-        except Track.DoesNotExist:
-            return None
+        return (
+            Track.objects.filter(id=track_id)
+            .select_related("artist")
+            .prefetch_related("genres")
+            .first()
+        )
 
     @staticmethod
     def listar_disponibles() -> List[Track]:
-        return list(Track.objects.filter(is_sold=False).order_by('-created_at'))
+        return list(
+            Track.objects.select_related("artist")
+            .prefetch_related("genres")
+            .order_by("-created_at")
+        )
 
     @staticmethod
     def listar_todos() -> List[Track]:
-        return list(Track.objects.all().order_by('-created_at'))
+        return TrackQueryService.listar_disponibles()

@@ -29,7 +29,7 @@ class SalesByPeriodView(APIView):
 class RevenueView(APIView):
     """
     GET /internal/charts/revenue/?period=30d
-    Ingresos totales y por tipo de licencia.
+    Ingresos totales y por género.
     """
     permission_classes = [AllowAny]
 

@@ -3,19 +3,15 @@
 {% load static %}
 
 {% block title %}{{ track.title }} - Tracks4U{% endblock %}
+{% block body_attrs %}data-view="track_detail" data-entrypoint="track_page"{% endblock %}
 
 {% block content %}
 <div class="max-w-5xl mx-auto px-4 py-12">
-    <!-- Back Button -->
     <a
         href="{% url 'track-list' %}"
-        class="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-8 transition-colors group"
+        class="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-8 transition-colors"
     >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:-translate-x-1 transition-transform">
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-        </svg>
-        {% trans "Back to Tracks" %}
+        ← {% trans "Back to Tracks" %}
     </a>
 
     <!-- Track Details Card -->
@@ -24,159 +20,238 @@
             <!-- Cover Image -->
             <div class="md:w-80 h-80 flex-shrink-0 bg-zinc-800">
                 {% if track.cover_image %}
-                    <img
-                        src="{{ track.cover_image.url }}"
-                        alt="{{ track.title }}"
-                        class="w-full h-full object-cover"
-                    >
+                    <img src="{{ track.cover_image.url }}" alt="{{ track.title }}" class="w-full h-full object-cover">
                 {% else %}
-                    <img
-                        src="{% static 'img/base_cover.jpg' %}"
-                        alt="{% trans 'Default cover' %}"
-                        class="w-full h-full object-cover opacity-50"
-                    >
+                    <img src="{% static 'img/base_cover.jpg' %}" alt="{% trans 'Default cover' %}" class="w-full h-full object-cover opacity-50">
                 {% endif %}
             </div>
 
             <!-- Track Info -->
             <div class="flex-1 p-8">
-                <h1 class="text-4xl font-bold text-white mb-4">{{ track.title }}</h1>
+                <div class="flex items-start justify-between gap-4 mb-2">
+                    <h1 class="text-4xl font-bold text-white">{{ track.title }}</h1>
+                    <span class="text-3xl font-bold text-red-500">${{ track.price }} <span class="text-sm text-zinc-400">USD</span></span>
+                </div>
+                {% if track.artist %}
+                <p class="text-zinc-400 mb-4">
+                    {% trans "Artist" %}:
+                    <a href="/tracks/artists/{{ track.artist.id }}/" class="text-red-400 hover:underline font-semibold">{{ track.artist.stage_name }}</a>
+                    <button
+                        type="button"
+                        onclick="window.T4UPlayer && window.T4UPlayer.toggleFollow({{ track.artist.id }}, this)"
+                        class="ml-3 px-3 py-1 text-xs bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded text-white"
+                    >
+                        + {% trans "Follow" %}
+                    </button>
+                </p>
+                {% endif %}
 
-                <!-- Audio Player -->
+                {% if track.audio_file %}
                 <audio
                     controls
-                    class="w-full mb-6 h-12"
-                    style="filter: brightness(0.9);"
+                    data-track-id="{{ track.id }}"
+                    class="t4u-audio w-full mb-6 h-12"
+                    src="{{ track.audio_file.url }}"
                 >
+                    <source src="{{ track.audio_file.url }}" type="audio/ogg; codecs=opus">
                     <source src="{{ track.audio_file.url }}" type="audio/mpeg">
-                    {% trans "Your browser does not support the audio element." %}
                 </audio>
+                {% endif %}
 
                 <!-- Track Metadata -->
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-zinc-800/50 rounded-lg p-4">
-                        <p class="text-zinc-400 text-sm mb-1">{% trans "BPM" %}</p>
-                        <p class="text-white text-xl font-bold">{{ track.bpm }}</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                    <div class="bg-zinc-800/50 rounded-lg p-3">
+                        <p class="text-zinc-400 text-xs mb-1">{% trans "BPM" %}</p>
+                        <p class="text-white text-lg font-bold">{{ track.bpm|default:"—" }}</p>
                     </div>
-                    <div class="bg-zinc-800/50 rounded-lg p-4">
-                        <p class="text-zinc-400 text-sm mb-1">{% trans "Genre" %}</p>
-                        <p class="text-white text-xl font-bold">{{ track.genre }}</p>
+                    <div class="bg-zinc-800/50 rounded-lg p-3">
+                        <p class="text-zinc-400 text-xs mb-1">{% trans "Type" %}</p>
+                        <p class="text-white text-lg font-bold">{{ track.track_type|default:"ORIGINAL" }}</p>
                     </div>
-                    <div class="bg-zinc-800/50 rounded-lg p-4">
-                        <p class="text-zinc-400 text-sm mb-1">{% trans "Sales" %}</p>
-                        <p class="text-white text-xl font-bold">{{ track.sales_count }}</p>
+                    <div class="bg-zinc-800/50 rounded-lg p-3">
+                        <p class="text-zinc-400 text-xs mb-1">{% trans "Language" %}</p>
+                        <p class="text-white text-lg font-bold">{{ track.language|default:"es" }}</p>
                     </div>
-                    <div class="bg-zinc-800/50 rounded-lg p-4">
-                        <p class="text-zinc-400 text-sm mb-1">{% trans "Uploaded" %}</p>
-                        <p class="text-white text-xl font-bold">{{ track.created_at|date:"d/m/Y" }}</p>
+                    <div class="bg-zinc-800/50 rounded-lg p-3">
+                        <p class="text-zinc-400 text-xs mb-1">{% trans "Duration" %}</p>
+                        <p class="text-white text-lg font-bold">{% if track.duration_sec %}{{ track.duration_sec }}s{% else %}—{% endif %}</p>
+                    </div>
+                </div>
+
+                <!-- Genres & Mood Tags -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    {% for g in track.genres.all %}
+                        <span class="px-3 py-1 bg-red-900/30 border border-red-800 text-red-300 rounded-full text-xs font-semibold">{{ g.name }}</span>
+                    {% endfor %}
+                    {% if track.subgenre %}
+                        <span class="px-3 py-1 bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-full text-xs">{{ track.subgenre }}</span>
+                    {% endif %}
+                    {% if track.mood_tags %}
+                        {% for tag in track.mood_tags %}
+                            <span class="px-2.5 py-1 bg-zinc-800/60 text-zinc-400 rounded text-xs">#{{ tag }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Social & Playlist Actions -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <button
+                        type="button"
+                        onclick="window.T4UPlayer && window.T4UPlayer.toggleLike({{ track.id }}, this)"
+                        class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-white text-sm"
+                    >
+                        ♥ {% trans "Like" %}
+                    </button>
+                    <button
+                        type="button"
+                        onclick="window.T4UPlayer && window.T4UPlayer.shareTrack({{ track.id }}, 'copy_link')"
+                        class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-white text-sm"
+                    >
+                        {% trans "Share" %}
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <select id="playlistSelector" class="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm">
+                            <option value="">{% trans "Add to playlist..." %}</option>
+                        </select>
+                        <button
+                            type="button"
+                            onclick="addToSelectedPlaylist()"
+                            class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-white text-sm font-medium"
+                        >
+                            + {% trans "Add" %}
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Purchase License Card -->
+    <!-- Direct Purchase Checkout Card -->
     <div class="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 rounded-xl p-8 shadow-2xl">
-        <h2 class="text-2xl font-bold text-white mb-6">{% trans "Purchase License" %}</h2>
-
-        <!-- Success/Error Message -->
+        <h2 class="text-2xl font-bold text-white mb-4">{% trans "Buy Track" %}</h2>
         <div id="mensaje" class="hidden mb-6 p-4 rounded-lg"></div>
 
-        <!-- Price Display -->
-        <div id="precio-display" class="mb-6 p-6 bg-zinc-800/50 rounded-lg border-2 border-zinc-700">
-            <p class="text-zinc-400 text-center">{% trans "Select a license type to view the price" %}</p>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-6">
-            <!-- License Type -->
+        <div class="grid md:grid-cols-2 gap-6 items-end">
             <div>
-                <label for="license_type" class="block text-sm font-medium text-zinc-300 mb-3">
-                    {% trans "License Type" %}
+                <label for="payment_method" class="block text-sm font-medium text-zinc-300 mb-2">
+                    {% trans "Payment Method" %}
                 </label>
                 <select
-                    id="license_type"
-                    onchange="mostrarPrecio(this.value)"
-                    class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-all"
+                    id="payment_method"
+                    class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:border-red-600"
                 >
-                    <option value="basic">{% trans "Basic — $9.99 USD" %}</option>
-                    <option value="premium">{% trans "Premium — $29.99 USD" %}</option>
-                    <option value="exclusive">{% trans "Exclusive — $99.99 USD" %}</option>
+                    <option value="CARD">{% trans "Credit / Debit Card (CARD)" %}</option>
+                    <option value="PAYPAL">PayPal</option>
+                    <option value="PSE">PSE</option>
+                    <option value="OTHER">{% trans "Other" %}</option>
                 </select>
             </div>
-
-            <!-- Currency -->
             <div>
-                <label for="currency" class="block text-sm font-medium text-zinc-300 mb-3">
-                    {% trans "Currency" %}
-                </label>
-                <select
-                    id="currency"
-                    class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-all"
+                <button
+                    type="button"
+                    onclick="iniciarCompra()"
+                    class="w-full bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-lg font-bold text-lg shadow-lg shadow-red-900/50 transition-all"
                 >
-                    <option value="COP">COP - {% trans "Colombian Peso" %}</option>
-                    <option value="USD">USD - {% trans "US Dollar" %}</option>
-                    <option value="EUR">EUR - {% trans "Euro" %}</option>
-                    <option value="GBP">GBP - {% trans "British Pound" %}</option>
-                    <option value="JPY">JPY - {% trans "Japanese Yen" %}</option>
-                    <option value="CHF">CHF - {% trans "Swiss Franc" %}</option>
-                    <option value="CAD">CAD - {% trans "Canadian Dollar" %}</option>
-                    <option value="AUD">AUD - {% trans "Australian Dollar" %}</option>
-                    <option value="CNY">CNY - {% trans "Chinese Yuan" %}</option>
-                    <option value="SGD">SGD - {% trans "Singapore Dollar" %}</option>
-                    <option value="MXN">MXN - {% trans "Mexican Peso" %}</option>
-                    <option value="BRL">BRL - {% trans "Brazilian Real" %}</option>
-                </select>
+                    {% trans "Buy Now" %} — ${{ track.price }} USD
+                </button>
             </div>
         </div>
-
-        <!-- Purchase Button -->
-        <button
-            onclick="comprar()"
-            class="w-full mt-6 bg-red-600 hover:bg-red-700 text-white py-4 rounded-lg font-bold text-lg shadow-lg shadow-red-900/50 transition-all hover:shadow-red-900/70 hover:-translate-y-0.5"
-        >
-            {% trans "Purchase License" %}
-        </button>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-const TRACK_ID = parseInt("{{ track.pk }}");
-let token = null;
+const TRACK_ID = Number("{{ track.pk }}");
+const TRACK_PRICE = Number("{{ track.price }}");
+let token = localStorage.getItem('token');
 
 window.addEventListener('load', function() {
-    token = localStorage.getItem('token');
-
-    if (!token) {
-        window.location.href = '/users/login/';
+    if (token) {
+        loadUserPlaylists();
     }
 });
 
-async function comprar() {
-    const license_type = document.getElementById('license_type').value;
-    const currency     = document.getElementById('currency').value;
+async function loadUserPlaylists() {
+    try {
+        const res = await fetch('/api/playlists/', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const lists = data.results || data;
+        const sel = document.getElementById('playlistSelector');
+        sel.innerHTML = `<option value="">{% trans "Add to playlist..." %}</option>` +
+            lists.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    } catch (e) {}
+}
+
+async function addToSelectedPlaylist() {
+    if (!token) {
+        window.location.href = '/users/login/';
+        return;
+    }
+    const playlistId = document.getElementById('playlistSelector').value;
+    if (!playlistId) return;
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+    };
+    if (window.Telemetry) {
+        Object.assign(headers, window.Telemetry.getContextHeaders());
+    }
+
+    const res = await fetch(`/api/playlists/${playlistId}/tracks/`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({ track_id: TRACK_ID }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+        mostrarMensaje("{% trans 'Track added to playlist!' %}", 'success');
+    } else {
+        mostrarMensaje(data.error || JSON.stringify(data), 'error');
+    }
+}
+
+async function iniciarCompra() {
+    if (!token) {
+        window.location.href = '/users/login/';
+        return;
+    }
+    const payment_method = document.getElementById('payment_method').value;
+
+    if (window.Telemetry) {
+        window.Telemetry.track('purchase_intent', {
+            track_id: TRACK_ID,
+            stage: 'checkout_start',
+            price: TRACK_PRICE,
+        });
+    }
 
     try {
-        const res = await fetch('/api/v2/licensing/', {
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        };
+        if (window.Telemetry) {
+            Object.assign(headers, window.Telemetry.getContextHeaders());
+        }
+
+        const res = await fetch('/payment/orders/', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers: headers,
             body: JSON.stringify({
-                track_id: TRACK_ID,
-                license_type: license_type,
-                currency: currency,
+                track_ids: [TRACK_ID],
+                payment_method: payment_method,
             }),
         });
-
         const data = await res.json();
 
         if (res.status === 201) {
-            const precio_key = `precio_${currency.toLowerCase()}`;
             mostrarMensaje(
-                `✓ {% trans "License" %} ${data.license_type} {% trans "purchased successfully!" %} | ${data[precio_key]} ${currency} | {% trans "Receipt" %}: ${data.recibo_id}`,
+                `✓ {% trans "Order completed!" %} #${data.id} — $${data.total_amount} ${data.currency}`,
                 'success'
             );
         } else {
@@ -190,33 +265,10 @@ async function comprar() {
 function mostrarMensaje(texto, tipo) {
     const el = document.getElementById('mensaje');
     el.textContent = texto;
-
-    if (tipo === 'success') {
-        el.className = 'mb-6 p-4 bg-green-900/20 border border-green-800 rounded-lg text-green-400';
-    } else {
-        el.className = 'mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg text-red-400';
-    }
-
+    el.className = tipo === 'success'
+        ? 'mb-6 p-4 bg-green-900/20 border border-green-800 rounded-lg text-green-400'
+        : 'mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg text-red-400';
     el.classList.remove('hidden');
-}
-
-function mostrarPrecio(licenseType) {
-    const precios = {
-        'basic': { usd: 9.99, eur: 9.49, gbp: 7.99 },
-        'premium': { usd: 29.99, eur: 28.49, gbp: 24.99 },
-        'exclusive': { usd: 99.99, eur: 94.99, gbp: 84.99 }
-    };
-
-    const precioDisplay = document.getElementById('precio-display');
-    const precio = precios[licenseType];
-
-    precioDisplay.innerHTML = `
-        <div class="text-center">
-            <p class="text-zinc-400 text-sm mb-2">${licenseType.charAt(0).toUpperCase() + licenseType.slice(1)} {% trans "License" %}</p>
-            <p class="text-white text-4xl font-bold">$${precio.usd} <span class="text-xl text-zinc-400">USD</span></p>
-            <p class="text-zinc-500 text-sm mt-2">€${precio.eur} EUR | £${precio.gbp} GBP</p>
-        </div>
-    `;
 }
 </script>
 {% endblock %}

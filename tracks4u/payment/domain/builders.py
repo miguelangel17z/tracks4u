@@ -1,50 +1,102 @@
-from tracks.models import Track  
+from decimal import Decimal
+from typing import List
+
+from payment.models import Order, OrderItem
+from tracks.models import Track
 from users.models import User
-from ..models import License
 
-class LicenseBuilder():
+
+class OrderBuilder:
+    """Constructor fluido con validación acumulada para órdenes de compra de tracks."""
+
     def __init__(self):
-        self.license_data = {}  # Acumula datos temporalmente
-        self.errores = []
-    
-    def para_track(self, track:Track):
-        self.license_data['track'] = track
+        self.user = None
+        self.tracks: List[Track] = []
+        self.payment_method = None
+        self.currency = "USD"
+        self.errores: List[str] = []
+
+    def para_user(self, user: User):
+        self.user = user
         return self
-    
-    def para_user(self, user:User):
-        self.license_data['user'] = user
+
+    def agregar_track(self, track: Track):
+        self.tracks.append(track)
         return self
-    
-    def para_license_type(self, license_type):
-        if license_type not in dict(License.LICENSE_TYPES):
-            return self
-        else:
-            self.license_data['license_type'] = license_type
+
+    def para_tracks(self, tracks: List[Track]):
+        for track in tracks:
+            self.agregar_track(track)
         return self
-    
+
+    def con_pago(self, payment_method: str, currency: str = "USD"):
+        self.payment_method = payment_method
+        self.currency = currency or "USD"
+        return self
+
     def validar(self):
-        self.errores = []  # actualizamos lista de errores
+        self.errores = []
 
-        if 'track' not in self.license_data:
-            self.errores.append("Falta la pista.")
-        elif not isinstance(self.license_data['track'], Track):
-            self.errores.append("Track inválido.")
+        if self.user is None:
+            self.errores.append("User is required.")
+        elif not isinstance(self.user, User):
+            self.errores.append("Invalid user.")
 
-        if 'user' not in self.license_data:
-            self.errores.append("Falta el usuario.")
-        elif not isinstance(self.license_data['user'], User):
-            self.errores.append("Usuario inválido.")
+        if not self.tracks:
+            self.errores.append("At least one track is required.")
+        elif len(self.tracks) > 50:
+            self.errores.append("An order cannot contain more than 50 tracks.")
 
-        if 'license_type' not in self.license_data:
-            self.errores.append("Falta el tipo de licencia.")
+        valid_payment_methods = dict(Order.PAYMENT_METHOD_CHOICES)
+        if not self.payment_method:
+            self.errores.append("Payment method is required.")
+        elif self.payment_method not in valid_payment_methods:
+            self.errores.append(f"Invalid payment method: {self.payment_method}.")
 
-        if License.objects.filter(user=self.license_data['user'], track=self.license_data['track']).exists():
-             self.errores.append("Ya tienes una licencia para este track.")
+        seen_track_ids = set()
+        valid_tracks: List[Track] = []
+        for track in self.tracks:
+            if not isinstance(track, Track) or track.id is None:
+                self.errores.append("Invalid track in order.")
+                continue
+            if track.id in seen_track_ids:
+                self.errores.append(f"Duplicate track in order: {track.title} (id={track.id}).")
+            seen_track_ids.add(track.id)
+            valid_tracks.append(track)
 
-    def construir(self):
+        if isinstance(self.user, User) and self.user.id is not None and valid_tracks:
+            for track in valid_tracks:
+                artist = getattr(track, "artist", None)
+                if artist is not None and artist.user_id == self.user.id:
+                    self.errores.append(
+                        f"Artist cannot purchase their own track: {track.title}."
+                    )
+
+            already_owned = set(
+                OrderItem.objects.filter(
+                    order__user=self.user,
+                    order__status="COMPLETED",
+                    track_id__in=[t.id for t in valid_tracks],
+                ).values_list("track_id", flat=True)
+            )
+            for track in valid_tracks:
+                if track.id in already_owned:
+                    self.errores.append(
+                        f"You already own track: {track.title} (id={track.id})."
+                    )
+
+        return self
+
+    def construir(self) -> dict:
         self.validar()
         if self.errores:
-            raise ValueError(f"Errores en la construcción de la licencia: {self.errores}")
-        
-        return License.objects.create(**self.license_data)
+            raise ValueError("; ".join(self.errores))
 
+        total_amount = sum((Decimal(str(t.price or 0)) for t in self.tracks), Decimal("0.00"))
+        return {
+            "user": self.user,
+            "tracks": list(self.tracks),
+            "payment_method": self.payment_method,
+            "currency": self.currency,
+            "total_amount": total_amount,
+        }

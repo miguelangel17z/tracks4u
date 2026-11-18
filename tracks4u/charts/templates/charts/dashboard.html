@@ -297,7 +297,7 @@
             <div class="chart-header">
                 <div>
                     <div class="chart-title">Sales Over Time</div>
-                    <div class="chart-subtitle">Licenses sold per day</div>
+                    <div class="chart-subtitle">Tracks sold per day</div>
                 </div>
             </div>
             <div class="chart-container">
@@ -309,7 +309,7 @@
         <div class="chart-card">
             <div class="chart-header">
                 <div>
-                    <div class="chart-title">Revenue by License</div>
+                    <div class="chart-title">Revenue by Genre</div>
                     <div class="chart-subtitle">Distribution in USD</div>
                 </div>
             </div>
@@ -338,7 +338,7 @@
             <div class="chart-header">
                 <div>
                     <div class="chart-title">Top Genres</div>
-                    <div class="chart-subtitle">Licenses per genre</div>
+                    <div class="chart-subtitle">Tracks sold per genre</div>
                 </div>
             </div>
             <div class="chart-container small">
@@ -552,17 +552,15 @@ async function loadTopTracks() {
 
         const rows = data.tracks.map((track, index) => {
             const rankClass = index < 3 ? `rank-${index + 1}` : "";
-            const badge = track.is_sold
-                ? '<span class="track-badge badge-sold">Sold</span>'
-                : '<span class="track-badge badge-available">Available</span>';
+            const priceLabel = track.price !== undefined ? `$${Number(track.price).toFixed(2)}` : "—";
             
             return `
                 <tr>
                     <td><span class="rank ${rankClass}">#${index + 1}</span></td>
                     <td style="font-weight: 600">${track.title}</td>
-                    <td>${track.genre}</td>
-                    <td style="color: var(--chart-accent); font-weight: 700">${track.sales_count}</td>
-                    <td>${badge}</td>
+                    <td>${track.genres}</td>
+                    <td style="color: var(--chart-accent); font-weight: 700">${track.items_sold}</td>
+                    <td><span class="track-badge badge-available">${priceLabel}</span></td>
                 </tr>`;
         }).join("");
 
@@ -572,9 +570,9 @@ async function loadTopTracks() {
                     <tr>
                         <th>#</th>
                         <th>Track</th>
-                        <th>Genre</th>
+                        <th>Genres</th>
                         <th>Sales</th>
-                        <th>Status</th>
+                        <th>Price</th>
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
@@ -602,7 +600,7 @@ async function loadGenresChart() {
             data: {
                 labels: data.labels,
                 datasets: [{
-                    label: "Licenses",
+                    label: "Tracks Sold",
                     data: data.values,
                     backgroundColor: data.labels.map((_, i) => palette[i % palette.length] + "dd"),
                     borderColor: data.labels.map((_, i) => palette[i % palette.length]),

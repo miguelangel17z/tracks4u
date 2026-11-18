@@ -314,7 +314,7 @@
       <div class="chart-header">
         <div>
           <div class="chart-title">Ventas por período</div>
-          <div class="chart-subtitle">Licencias vendidas por día</div>
+          <div class="chart-subtitle">Tracks vendidos por día</div>
         </div>
       </div>
       <div class="chart-wrap tall"><canvas id="salesChart"></canvas></div>
@@ -323,7 +323,7 @@
     <div class="chart-card">
       <div class="chart-header">
         <div>
-          <div class="chart-title">Ingresos por licencia</div>
+          <div class="chart-title">Ingresos por género</div>
           <div class="chart-subtitle">Distribución en USD</div>
         </div>
       </div>
@@ -347,7 +347,7 @@
       <div class="chart-header">
         <div>
           <div class="chart-title">Géneros más vendidos</div>
-          <div class="chart-subtitle">Licencias por género</div>
+          <div class="chart-subtitle">Tracks vendidos por género</div>
         </div>
       </div>
       <div class="chart-wrap"><canvas id="genresChart"></canvas></div>
@@ -524,16 +524,14 @@
 
       const rows = d.tracks.map((t, i) => {
         const rankClass = i < 3 ? `rank-${i+1}` : "";
-        const badge = t.is_sold
-          ? `<span class="badge badge-sold">vendido</span>`
-          : `<span class="badge badge-available">disponible</span>`;
+        const priceLabel = t.price !== undefined ? `$${Number(t.price).toFixed(2)}` : "—";
         return `
           <tr>
             <td><span class="rank ${rankClass}">#${i+1}</span></td>
             <td>${t.title}</td>
-            <td>${t.genre}</td>
-            <td style="color:var(--accent);font-weight:500">${t.sales_count}</td>
-            <td>${badge}</td>
+            <td>${t.genres}</td>
+            <td style="color:var(--accent);font-weight:500">${t.items_sold}</td>
+            <td><span class="badge badge-available">${priceLabel}</span></td>
           </tr>`;
       }).join("");
 
@@ -541,7 +539,7 @@
         <table class="tracks-table">
           <thead>
             <tr>
-              <th>#</th><th>Track</th><th>Género</th><th>Ventas</th><th>Estado</th>
+              <th>#</th><th>Track</th><th>Géneros</th><th>Ventas</th><th>Precio</th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>
@@ -567,7 +565,7 @@
         data: {
           labels: d.labels,
           datasets: [{
-            label: "Licencias",
+            label: "Ventas",
             data: d.values,
             backgroundColor: d.labels.map((_, i) => palette[i % palette.length] + "bb"),
             borderColor:     d.labels.map((_, i) => palette[i % palette.length]),
